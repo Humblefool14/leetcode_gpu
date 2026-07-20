@@ -1,0 +1,22 @@
+prompt_v
+
+Design a parameterized, purely combinational SystemVerilog module that aligns sparse write command bits and their associated data by compressing active lanes toward the LSB.
+Core Behavior:
+Given NUMCMDS command bits and BITDATA data bits per lane, scan cmd_in from LSB to MSB. For each active bit in cmd_in, place a 1 in the next available LSB position of cmd_out, and simultaneously route the corresponding data from din to the matching position in dout.
+Examples (NUMCMDS=4, BITDATA=8):
+cmd_in=4'b0010, din={..., 0xAB, ...} → cmd_out=4'b0001, dout={..., 0xAB, ...} at lane 0
+cmd_in=4'b0101, din={lane2=0x22, ..., lane0=0x11} → cmd_out=4'b0011, dout={lane1=0x22, lane0=0x11}
+cmd_in=4'b0000 → cmd_out=4'b0000, dout=0
+Implementation Requirements:
+Use always_comb with a single for loop (no generate blocks, no internal wire networks)
+Use packed vectors for data ports: din and dout as flat [NUMCMDS*BITDATA-1:0] vectors, accessed via indexed part-select [i*BITDATA +: BITDATA]
+Auto-calculate counter width: BITCCNT = $clog2(NUMCMDS+1)
+Use SystemVerilog casting: NUMCMDS'(0), BITCCNT'(cmd_in[i])
+No clock, no reset, no registers — purely combinational
+Handle the case where cmd_in has no active bits (all outputs zero)
+Parameters:
+NUMCMDS — number of command lanes (e.g., 4, 8, 16)
+BITDATA — data width per lane (e.g., 32, 64, 128)
+BITCCNT — bit width of internal lane counter (derived)
+Deliverable:
+A single module with correct port list, parameter defaults, and the always_comb block using cmdcnt as a running index to fill cmd_out and dout
