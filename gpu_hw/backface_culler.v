@@ -21,9 +21,14 @@ module backface_culler #(
     // Positive = counter-clockwise (front-facing), Negative = clockwise (back-facing)
     // Assumes screen-space Y increases downward (standard for rasterization)
 
-    logic signed [WIDTH:0] edge0_x, edge0_y;  // v1 - v0
-    logic signed [WIDTH:0] edge1_x, edge1_y;  // v2 - v0
-    logic signed [2*WIDTH:0] cross_product;  // edge0_x * edge1_y - edge0_y * edge1_x
+    localparam int EDGE_W  = WIDTH + 1;       // room for v1-v0 subtraction
+    localparam int PROD_W  = 2 * EDGE_W;      // room for signed*signed product
+    localparam int CROSS_W = PROD_W + 1;      // extra bit for prod0 - prod1
+
+    logic signed [EDGE_W-1:0]  edge0_x, edge0_y;  // v1 - v0
+    logic signed [EDGE_W-1:0]  edge1_x, edge1_y;  // v2 - v0
+    logic signed [PROD_W-1:0]  prod0, prod1;
+    logic signed [CROSS_W-1:0] cross_product;      // prod0 - prod1
 
     assign edge0_x = v1_x - v0_x;
     assign edge0_y = v1_y - v0_y;
@@ -32,7 +37,9 @@ module backface_culler #(
 
     // Cross product sign determines facing
     // Positive = front-facing (pass), Negative or Zero = back-facing (cull)
-    assign cross_product = (edge0_x * edge1_y) - (edge0_y * edge1_x);
+    assign prod0 = edge0_x * edge1_y;
+    assign prod1 = edge0_y * edge1_x;
+    assign cross_product = prod0 - prod1;
 
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
