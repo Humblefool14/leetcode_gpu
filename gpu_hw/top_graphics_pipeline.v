@@ -1,220 +1,194 @@
+`timescale 1ns / 1ps
+
 module top_graphics_pipeline #(
-    parameter WIDTH = 32,
-    parameter DATA_WIDTH = 24,
-    parameter ADDR_WIDTH = 19
+    parameter int SCREEN_WIDTH  = 640,
+    parameter int SCREEN_HEIGHT = 480,
+    parameter int FB_ADDR_W     = 19,   // clog2(640*480)
+    parameter int PIXEL_BITS    = 24    // RGB888
 )(
-    input  wire        clk,      // 25.175 MHz for VGA
-    input  wire        rst_n,
-    
-    // UART from Host PC
-    input  wire        uart_rx,
-    output wire        uart_tx,
-    
-    // VGA Output
-    output wire [7:0]  vga_r,
-    output wire [7:0]  vga_g,
-    output wire [7:0]  vga_b,
-    output wire        vga_hsync,
-    output wire        vga_vsync,
-    output wire        vga_de
+    input  logic        clk,            // 25.175 MHz pixel clock
+    input  logic        rst_n,
+
+    // UART from external receiver (e.g., Xilinx UART lite)
+    input  logic        uart_rx_valid,
+    input  logic [31:0] uart_rx_data,
+
+    // VGA Output to Monitor
+    output logic [7:0]  vga_r,
+    output logic [7:0]  vga_g,
+    output logic [7:0]  vga_b,
+    output logic        vga_hsync,
+    output logic        vga_vsync,
+    output logic        vga_de
 );
 
-// Internal signals
-wire [WIDTH-1:0] reg_v0_x, reg_v0_y;
-wire [WIDTH-1:0] reg_v1_x, reg_v1_y;
-wire [WIDTH-1:0] reg_v2_x, reg_v2_y;
-wire [WIDTH-1:0] reg_color;
-wire             reg_start;
-wire             pipeline_busy;
+    // =====================================================================
+    // HOST INTERFACE → All triangle data + control
+    // =====================================================================
 
-// Triangle setup outputs
-wire             setup_done;
-wire [WIDTH-1:0] x_min, x_max, y_min, y_max;
-wire [WIDTH-1:0] e0_init, e1_init, e2_init;
-wire [WIDTH-1:0] dX0, dY0, dX1, dY1, dX2, dY2;
+    logic        host_start;
+    logic        host_clear_z;
+    logic [15:0] host_v0_x, host_v0_y;
+    logic [15:0] host_v1_x, host_v1_y;
+    logic [15:0] host_v2_x, host_v2_y;
+    logic [7:0]  host_v0_r, host_v0_g, host_v0_b;
+    logic [7:0]  host_v1_r, host_v1_g, host_v1_b;
+    logic [7:0]  host_v2_r, host_v2_g, host_v2_b;
+    logic [15:0] host_v0_z, host_v1_z, host_v2_z;
+    logic [31:0] host_inv_area;
 
-// Rasterizer control
-wire             load_init;
-wire             step_right;
-wire             step_down;
-wire             inside0, inside1, inside2;
-wire             pixel_valid;
-wire [WIDTH-1:0] pixel_x, pixel_y;
+    logic        pipeline_busy;
 
-// Framebuffer
-wire [ADDR_WIDTH-1:0] fb_wr_addr;
-wire [DATA_WIDTH-1:0] fb_wr_data;
-wire                  fb_wr_en;
-wire [ADDR_WIDTH-1:0] fb_rd_addr;
-wire [DATA_WIDTH-1:0] fb_rd_data;
+    host_interface u_host (
+        .clk            (clk),
+        .rst_n          (rst_n),
+        .uart_rx_valid  (uart_rx_valid),
+        .uart_rx_data   (uart_rx_data),
+        .reg_start      (host_start),
+        .reg_clear_z    (host_clear_z),
+        .reg_status     (),
+        .reg_v0_x       (host_v0_x), .reg_v0_y (host_v0_y),
+        .reg_v1_x       (host_v1_x), .reg_v1_y (host_v1_y),
+        .reg_v2_x       (host_v2_x), .reg_v2_y (host_v2_y),
+        .reg_v0_r       (host_v0_r), .reg_v0_g (host_v0_g), .reg_v0_b (host_v0_b),
+        .reg_v1_r       (host_v1_r), .reg_v1_g (host_v1_g), .reg_v1_b (host_v1_b),
+        .reg_v2_r       (host_v2_r), .reg_v2_g (host_v2_g), .reg_v2_b (host_v2_b),
+        .reg_v0_z       (host_v0_z),
+        .reg_v1_z       (host_v1_z),
+        .reg_v2_z       (host_v2_z),
+        .reg_inv_area   (host_inv_area),
+        .reg_flat_color (),
+        .pipeline_busy  (pipeline_busy)
+    );
 
-// ============================================================================
-// HOST INTERFACE
-// ============================================================================
-host_interface u_host (
-    .clk            (clk),
-    .rst_n          (rst_n),
-    .uart_rx        (uart_rx),
-    .uart_tx        (uart_tx),
-    .uart_rx_valid  (/* connect to UART receiver */),
-    .uart_rx_data   (/* connect to UART receiver */),
-    .reg_start      (reg_start),
-    .reg_v0_x       (reg_v0_x),
-    .reg_v0_y       (reg_v0_y),
-    .reg_v1_x       (reg_v1_x),
-    .reg_v1_y       (reg_v1_y),
-    .reg_v2_x       (reg_v2_x),
-    .reg_v2_y       (reg_v2_y),
-    .reg_color      (reg_color),
-    .pipeline_busy  (pipeline_busy),
-    .reg_status     ()
-);
+    // =====================================================================
+    // RASTERIZER CORE → Outputs fragments with edge values
+    // =====================================================================
 
-// ============================================================================
-// TRIANGLE SETUP
-// ============================================================================
-triangle_setup u_setup (
-    .clk        (clk),
-    .rst_n      (rst_n),
-    .start      (reg_start),
-    .v0_x       (reg_v0_x),
-    .v0_y       (reg_v0_y),
-    .v1_x       (reg_v1_x),
-    .v1_y       (reg_v1_y),
-    .v2_x       (reg_v2_x),
-    .v2_y       (reg_v2_y),
-    .setup_done (setup_done),
-    .x_min      (x_min),
-    .x_max      (x_max),
-    .y_min      (y_min),
-    .y_max      (y_max),
-    .e0_init    (e0_init),
-    .e1_init    (e1_init),
-    .e2_init    (e2_init),
-    .dX0        (dX0),
-    .dY0        (dY0),
-    .dX1        (dX1),
-    .dY1        (dY1),
-    .dX2        (dX2),
-    .dY2        (dY2)
-);
+    logic        raster_done;
+    logic        frag_valid;
+    logic [15:0] frag_x, frag_y;
+    logic signed [31:0] frag_e0, frag_e1, frag_e2;
 
-// ============================================================================
-// RASTERIZER CORE
-// ============================================================================
-rasterizer_core u_rasterizer (
-    .clk         (clk),
-    .rst_n       (rst_n),
-    .setup_done  (setup_done),
-    .x_min       (x_min),
-    .x_max       (x_max),
-    .y_min       (y_min),
-    .y_max       (y_max),
-    .e0_init     (e0_init),
-    .e1_init     (e1_init),
-    .e2_init     (e2_init),
-    .dX0         (dX0),
-    .dY0         (dY0),
-    .dX1         (dX1),
-    .dY1         (dY1),
-    .dX2         (dX2),
-    .dY2         (dY2),
-    .load_init   (load_init),
-    .step_right  (step_right),
-    .step_down   (step_down),
-    .inside0     (inside0),
-    .inside1     (inside1),
-    .inside2     (inside2),
-    .pixel_valid (pixel_valid),
-    .pixel_x     (pixel_x),
-    .pixel_y     (pixel_y)
-);
+    rasterizer_core u_rasterizer (
+        .clk        (clk),
+        .rst_n      (rst_n),
+        .start      (host_start),
+        .busy       (pipeline_busy),
+        .done       (raster_done),
+        .v0_x       (host_v0_x), .v0_y (host_v0_y),
+        .v1_x       (host_v1_x), .v1_y (host_v1_y),
+        .v2_x       (host_v2_x), .v2_y (host_v2_y),
+        .frag_valid (frag_valid),
+        .frag_x     (frag_x),
+        .frag_y     (frag_y),
+        .frag_e0    (frag_e0),
+        .frag_e1    (frag_e1),
+        .frag_e2    (frag_e2)
+    );
 
-// ============================================================================
-// EDGE EVALUATORS (3 instances)
-// ============================================================================
-edge_evaluator u_edge0 (
-    .clk         (clk),
-    .rst_n       (rst_n),
-    .e_init      (e0_init),
-    .load_init   (load_init),
-    .dX          (dX0),
-    .dY          (dY0),
-    .step_right  (step_right),
-    .step_down   (step_down),
-    .e_value     (),
-    .is_inside   (inside0)
-);
+    // =====================================================================
+    // PIXEL SHADER → Gouraud interpolation (Option B)
+    // =====================================================================
 
-edge_evaluator u_edge1 (
-    .clk         (clk),
-    .rst_n       (rst_n),
-    .e_init      (e1_init),
-    .load_init   (load_init),
-    .dX          (dX1),
-    .dY          (dY1),
-    .step_right  (step_right),
-    .step_down   (step_down),
-    .e_value     (),
-    .is_inside   (inside1)
-);
+    logic        ps_valid;
+    logic [15:0] ps_x, ps_y;
+    logic [7:0]  ps_r, ps_g, ps_b;
+    logic [15:0] ps_z;
 
-edge_evaluator u_edge2 (
-    .clk         (clk),
-    .rst_n       (rst_n),
-    .e_init      (e2_init),
-    .load_init   (load_init),
-    .dX          (dX2),
-    .dY          (dY2),
-    .step_right  (step_right),
-    .step_down   (step_down),
-    .e_value     (),
-    .is_inside   (inside2)
-);
+    pixel_shader u_shader (
+        .clk         (clk),
+        .rst_n       (rst_n),
+        .inv_area    (host_inv_area),
+        .v0_r        (host_v0_r), .v0_g (host_v0_g), .v0_b (host_v0_b),
+        .v1_r        (host_v1_r), .v1_g (host_v1_g), .v1_b (host_v1_b),
+        .v2_r        (host_v2_r), .v2_g (host_v2_g), .v2_b (host_v2_b),
+        .v0_z        (host_v0_z),
+        .v1_z        (host_v1_z),
+        .v2_z        (host_v2_z),
+        .raster_valid(frag_valid),
+        .raster_x    (frag_x),
+        .raster_y    (frag_y),
+        .raster_e0   (frag_e0),
+        .raster_e1   (frag_e1),
+        .raster_e2   (frag_e2),
+        .ps_valid    (ps_valid),
+        .ps_x        (ps_x),
+        .ps_y        (ps_y),
+        .ps_r        (ps_r),
+        .ps_g        (ps_g),
+        .ps_b        (ps_b),
+        .ps_z        (ps_z)
+    );
 
-// ============================================================================
-// FRAMEBUFFER ADDRESS & DATA GENERATION
-// ============================================================================
-assign fb_wr_en   = pixel_valid;
-assign fb_wr_addr = (pixel_y[ADDR_WIDTH-1:0] * 640) + pixel_x[ADDR_WIDTH-1:0];
-assign fb_wr_data = reg_color[23:0]; // RGB from host interface
+    // =====================================================================
+    // OUTPUT MERGER → Z-test + framebuffer write
+    // =====================================================================
 
-// In top_graphics_pipeline:
+    logic        om_fb_we;
+    logic [FB_ADDR_W-1:0] om_fb_addr;
+    logic [PIXEL_BITS-1:0] om_fb_wdata;
+    logic        om_clear_done;
+    logic        om_pipeline_stall;
 
-logic swap_buffers;
-logic front_buffer_id;
+    output_merger u_om (
+        .clk            (clk),
+        .rst_n          (rst_n),
+        .clear_zbuffer  (host_clear_z),
+        .clear_done     (om_clear_done),
+        .pipeline_stall (om_pipeline_stall),
+        .ps_valid       (ps_valid),
+        .ps_x           (ps_x),
+        .ps_y           (ps_y),
+        .ps_color       ({ps_r, ps_g, ps_b}),
+        .ps_z           (ps_z),
+        .fb_we          (om_fb_we),
+        .fb_addr        (om_fb_addr),
+        .fb_wdata       (om_fb_wdata)
+    );
 
-framebuffer_controller u_fb (
-    .clk            (clk),
-    .rst_n          (rst_n),
-    .swap_buffers   (swap_buffers),
-    .front_buffer_id(front_buffer_id),
+    // Back-pressure: stall rasterizer during Z-clear
+    // (Your rasterizer_core has no stall input — add one, or rely on host not sending during clear)
+    // For now: assert that we never stall unexpectedly
+    // Future: add .stall(om_pipeline_stall) to rasterizer_core
 
-    // From output_merger (writes to back buffer)
-    .wr_en          (om_fb_we),
-    .wr_addr        (om_fb_addr),
-    .wr_data        (om_fb_wdata),
+    // =====================================================================
+    // FRAMEBUFFER → Double buffered BRAM
+    // =====================================================================
 
-    // To display controller (reads from front buffer)
-    .rd_addr        (disp_fb_rd_addr),
-    .rd_data        (disp_fb_rd_data)
-);
+    logic        swap_buffers;
+    logic        front_buffer_id;
+    logic [FB_ADDR_W-1:0]  disp_fb_rd_addr;
+    logic [PIXEL_BITS-1:0] disp_fb_rd_data;
 
-display_controller u_display (
-    .clk            (clk),
-    .rst_n          (rst_n),
-    .fb_rd_addr     (disp_fb_rd_addr),
-    .fb_rd_data     (disp_fb_rd_data),
-    .swap_buffers   (swap_buffers),      // NEW: connected!
-    .vga_r          (vga_r),
-    .vga_g          (vga_g),
-    .vga_b          (vga_b),
-    .vga_hsync      (vga_hsync),
-    .vga_vsync      (vga_vsync),
-    .vga_de         (vga_de)
-);
+    framebuffer_controller u_fb (
+        .clk            (clk),
+        .rst_n          (rst_n),
+        .swap_buffers   (swap_buffers),
+        .front_buffer_id(front_buffer_id),
+        .wr_en          (om_fb_we),
+        .wr_addr        (om_fb_addr),
+        .wr_data        (om_fb_wdata),
+        .rd_addr        (disp_fb_rd_addr),
+        .rd_data        (disp_fb_rd_data)
+    );
 
-// Pipeline busy signal
-assign pipeline_busy = (u_rasterizer.state != u_rasterizer.IDLE);
+    // =====================================================================
+    // DISPLAY CONTROLLER → VGA timing + buffer swap
+    // =====================================================================
+
+    display_controller u_display (
+        .clk            (clk),
+        .rst_n          (rst_n),
+        .fb_rd_addr     (disp_fb_rd_addr),
+        .fb_rd_data     (disp_fb_rd_data),
+        .swap_buffers   (swap_buffers),
+        .vga_r          (vga_r),
+        .vga_g          (vga_g),
+        .vga_b          (vga_b),
+        .vga_hsync      (vga_hsync),
+        .vga_vsync      (vga_vsync),
+        .vga_de         (vga_de)
+    );
 
 endmodule
