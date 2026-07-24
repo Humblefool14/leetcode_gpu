@@ -4,105 +4,133 @@ module display_controller #(
     parameter H_SYNC     = 96,
     parameter H_BACK     = 48,
     parameter H_TOTAL    = 800,
-    
     parameter V_ACTIVE   = 480,
     parameter V_FRONT    = 10,
     parameter V_SYNC     = 2,
     parameter V_BACK     = 33,
     parameter V_TOTAL    = 525,
-    
-    parameter ADDR_WIDTH = 19,
-    parameter DATA_WIDTH = 24
+    parameter ADDR_W     = 19,
+    parameter DATA_W     = 24
 )(
-    input  wire                  clk,        // 25.175 MHz
-    input  wire                  rst_n,
-    
-    // To Framebuffer
-    output reg  [ADDR_WIDTH-1:0] fb_addr,
-    input  wire [DATA_WIDTH-1:0] fb_data,
-    
+    input  logic              clk,          // 25.175 MHz pixel clock
+    input  logic              rst_n,
+
+    // To framebuffer_controller
+    output logic [ADDR_W-1:0] fb_rd_addr,
+    input  logic [DATA_W-1:0] fb_rd_data,
+    output logic              swap_buffers,  // NEW: pulse during VBLANK
+
     // VGA Output
-    output reg  [7:0]            vga_r,
-    output reg  [7:0]            vga_g,
-    output reg  [7:0]            vga_b,
-    output reg                   vga_hsync,
-    output reg                   vga_vsync,
-    output reg                   vga_de      // Data enable
+    output logic [7:0]        vga_r,
+    output logic [7:0]        vga_g,
+    output logic [7:0]        vga_b,
+    output logic              vga_hsync,
+    output logic              vga_vsync,
+    output logic              vga_de
 );
 
-// Counters
-reg [9:0] h_count;
-reg [9:0] v_count;
+    // Counters
+    logic [9:0] h_count;
+    logic [9:0] v_count;
 
-wire h_active = (h_count < H_ACTIVE);
-wire v_active = (v_count < V_ACTIVE);
-wire pixel_active = h_active & v_active;
+    // Timing regions
+    logic h_active, v_active, pixel_active;
+    logic in_vblank;  // NEW: true during vertical blanking interval
 
-// Horizontal counter
-always @(posedge clk or negedge rst_n) begin
-    if (!rst_n) begin
-        h_count <= 10'd0;
-    end else begin
-        if (h_count == H_TOTAL - 1)
-            h_count <= 10'd0;
+    assign h_active    = (h_count < H_ACTIVE);
+    assign v_active    = (v_count < V_ACTIVE);
+    assign pixel_active = h_active && v_active;
+    assign in_vblank   = (v_count >= V_ACTIVE);  // In front porch, sync, or back porch
+
+    // Horizontal counter
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n)
+            h_count <= '0;
+        else if (h_count == H_TOTAL - 1)
+            h_count <= '0;
         else
             h_count <= h_count + 1'b1;
     end
-end
 
-// Vertical counter
-always @(posedge clk or negedge rst_n) begin
-    if (!rst_n) begin
-        v_count <= 10'd0;
-    end else begin
-        if (h_count == H_TOTAL - 1) begin
+    // Vertical counter
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            v_count <= '0;
+        end else if (h_count == H_TOTAL - 1) begin
             if (v_count == V_TOTAL - 1)
-                v_count <= 10'd0;
+                v_count <= '0;
             else
                 v_count <= v_count + 1'b1;
         end
     end
-end
 
-// Framebuffer address generation
-always @(posedge clk) begin
-    if (pixel_active) begin
-        fb_addr <= v_count * H_ACTIVE + h_count;
+    // Framebuffer address (only during active video)
+    always_ff @(posedge clk) begin
+        if (pixel_active)
+            fb_rd_addr <= v_count * H_ACTIVE + h_count;
     end
-end
 
-// VGA signals (registered for clean timing)
-always @(posedge clk or negedge rst_n) begin
-    if (!rst_n) begin
-        vga_hsync <= 1'b1;
-        vga_vsync <= 1'b1;
-        vga_de    <= 1'b0;
-        vga_r     <= 8'd0;
-        vga_g     <= 8'd0;
-        vga_b     <= 8'd0;
-    end else begin
-        // HSYNC: active low during sync pulse
-        vga_hsync <= ~((h_count >= H_ACTIVE + H_FRONT) && 
-                       (h_count < H_ACTIVE + H_FRONT + H_SYNC));
-        
-        // VSYNC: active low during sync pulse
-        vga_vsync <= ~((v_count >= V_ACTIVE + V_FRONT) && 
-                       (v_count < V_ACTIVE + V_FRONT + V_SYNC));
-        
-        // Data enable
-        vga_de <= pixel_active;
-        
-        // RGB output (delayed to match fb_data latency)
-        if (pixel_active) begin
-            vga_r <= fb_data[23:16];
-            vga_g <= fb_data[15:8];
-            vga_b <= fb_data[7:0];
+    // Swap buffers: single pulse at start of VBLANK (first line after active)
+    // v_count == V_ACTIVE, h_count == 0: just entered vertical blanking
+    logic swap_pending;  // Ensure one pulse per frame
+
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            swap_buffers <= 1'b0;
+            swap_pending <= 1'b0;
         end else begin
-            vga_r <= 8'd0;
-            vga_g <= 8'd0;
-            vga_b <= 8'd0;
+            swap_buffers <= 1'b0;  // Default
+
+            if (v_count == V_ACTIVE && h_count == 0 && !swap_pending) begin
+                swap_buffers <= 1'b1;
+                swap_pending <= 1'b1;
+            end
+
+            // Reset pending at start of next frame
+            if (v_count == 0 && h_count == 0)
+                swap_pending <= 1'b0;
         end
     end
-end
+
+    // VGA outputs (registered)
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            vga_hsync <= 1'b1;
+            vga_vsync <= 1'b1;
+            vga_de    <= 1'b0;
+            vga_r     <= '0;
+            vga_g     <= '0;
+            vga_b     <= '0;
+        end else begin
+            vga_hsync <= ~((h_count >= H_ACTIVE + H_FRONT) &&
+                           (h_count < H_ACTIVE + H_FRONT + H_SYNC));
+            vga_vsync <= ~((v_count >= V_ACTIVE + V_FRONT) &&
+                           (v_count < V_ACTIVE + V_FRONT + V_SYNC));
+            vga_de    <= pixel_active;
+
+            if (pixel_active) begin
+                vga_r <= fb_rd_data[23:16];
+                vga_g <= fb_rd_data[15:8];
+                vga_b <= fb_rd_data[7:0];
+            end else begin
+                vga_r <= '0;
+                vga_g <= '0;
+                vga_b <= '0;
+            end
+        end
+    end
+
+    // Assertions
+    property p_swap_in_vblank;
+        @(posedge clk) disable iff (!rst_n)
+        swap_buffers |-> in_vblank;
+    endproperty
+    a_swap_in_vblank: assert property (p_swap_in_vblank);
+
+    property p_one_swap_per_frame;
+        @(posedge clk) disable iff (!rst_n)
+        swap_buffers |=> !swap_buffers[*0:$] ##1 (v_count == 0 && h_count == 0);
+    endproperty
+    a_one_swap_per_frame: assert property (p_one_swap_per_frame);
 
 endmodule
