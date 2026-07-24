@@ -179,33 +179,39 @@ assign fb_wr_en   = pixel_valid;
 assign fb_wr_addr = (pixel_y[ADDR_WIDTH-1:0] * 640) + pixel_x[ADDR_WIDTH-1:0];
 assign fb_wr_data = reg_color[23:0]; // RGB from host interface
 
-// ============================================================================
-// FRAMEBUFFER (Dual-Port BRAM)
-// ============================================================================
+// In top_graphics_pipeline:
+
+logic swap_buffers;
+logic front_buffer_id;
+
 framebuffer_controller u_fb (
-    .clk      (clk),
-    .rst_n    (rst_n),
-    .wr_en    (fb_wr_en),
-    .wr_addr  (fb_wr_addr),
-    .wr_data  (fb_wr_data),
-    .rd_addr  (fb_rd_addr),
-    .rd_data  (fb_rd_data)
+    .clk            (clk),
+    .rst_n          (rst_n),
+    .swap_buffers   (swap_buffers),
+    .front_buffer_id(front_buffer_id),
+
+    // From output_merger (writes to back buffer)
+    .wr_en          (om_fb_we),
+    .wr_addr        (om_fb_addr),
+    .wr_data        (om_fb_wdata),
+
+    // To display controller (reads from front buffer)
+    .rd_addr        (disp_fb_rd_addr),
+    .rd_data        (disp_fb_rd_data)
 );
 
-// ============================================================================
-// DISPLAY CONTROLLER
-// ============================================================================
 display_controller u_display (
-    .clk       (clk),
-    .rst_n     (rst_n),
-    .fb_addr   (fb_rd_addr),
-    .fb_data   (fb_rd_data),
-    .vga_r     (vga_r),
-    .vga_g     (vga_g),
-    .vga_b     (vga_b),
-    .vga_hsync (vga_hsync),
-    .vga_vsync (vga_vsync),
-    .vga_de    (vga_de)
+    .clk            (clk),
+    .rst_n          (rst_n),
+    .fb_rd_addr     (disp_fb_rd_addr),
+    .fb_rd_data     (disp_fb_rd_data),
+    .swap_buffers   (swap_buffers),      // NEW: connected!
+    .vga_r          (vga_r),
+    .vga_g          (vga_g),
+    .vga_b          (vga_b),
+    .vga_hsync      (vga_hsync),
+    .vga_vsync      (vga_vsync),
+    .vga_de         (vga_de)
 );
 
 // Pipeline busy signal
