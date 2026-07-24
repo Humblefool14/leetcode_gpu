@@ -70,10 +70,27 @@ module top_graphics_pipeline #(
     logic [15:0] frag_x, frag_y;
     logic signed [31:0] frag_e0, frag_e1, frag_e2;
 
+    logic cull_pass, cull_done;
+
+    backface_culler u_cull (
+       .clk     (pixel_clk),
+       .rst_n   (rst_n_sync),
+       .start   (host_start),
+       .v0_x    (host_v0_x), .v0_y (host_v0_y),
+       .v1_x    (host_v1_x), .v1_y (host_v1_y),
+       .v2_x    (host_v2_x), .v2_y (host_v2_y),
+       .cull_pass(cull_pass),
+       .cull_done(cull_done)
+    );
+
+    // Only start rasterizer if triangle passes culling
+    logic rasterizer_start;
+    assign rasterizer_start = cull_done && cull_pass;
+
     rasterizer_core u_rasterizer (
         .clk        (clk),
         .rst_n      (rst_n),
-        .start      (host_start),
+        .start      (rasterizer_start),
         .busy       (pipeline_busy),
         .done       (raster_done),
         .v0_x       (host_v0_x), .v0_y (host_v0_y),
