@@ -2,8 +2,9 @@
 
 module pixel_shader #(
     parameter int COLOR_W = 8,
-    parameter int Z_W     = 16,   // NEW: depth output width
-    parameter int W_W     = 16    // Weight precision
+    parameter int Z_W     = 16,   // Depth output width
+    parameter int W_W     = 16,   // Weight precision (0.16 fixed-point)
+    parameter int UV_W    = 16    // Texture coordinate precision
 )(
     input  logic              clk,
     input  logic              rst_n,
@@ -21,6 +22,11 @@ module pixel_shader #(
     input  logic [Z_W-1:0]    v1_z,
     input  logic [Z_W-1:0]    v2_z,
 
+    // Vertex UVs (texture coordinates)
+    input  logic [UV_W-1:0]   v0_u, v0_v,
+    input  logic [UV_W-1:0]   v1_u, v1_v,
+    input  logic [UV_W-1:0]   v2_u, v2_v,
+
     // From rasterizer_core
     input  logic              raster_valid,
     input  logic [15:0]       raster_x,
@@ -36,7 +42,12 @@ module pixel_shader #(
     output logic [COLOR_W-1:0] ps_r,
     output logic [COLOR_W-1:0] ps_g,
     output logic [COLOR_W-1:0] ps_b,
-    output logic [Z_W-1:0]    ps_z          // NEW: interpolated depth
+    output logic [Z_W-1:0]    ps_z,
+
+    // To texture sampler
+    output logic              ps_tex_valid,
+    output logic [UV_W-1:0]   ps_u,
+    output logic [UV_W-1:0]   ps_v
 );
 
     // =====================================================================
@@ -94,26 +105,47 @@ module pixel_shader #(
     // Stage 2: Attribute Interpolation
     // =====================================================================
 
-    // Widen to prevent overflow: 16-bit weight * 8-bit color = 24-bit
-    // Sum of 3 = 26-bit. >> 16 gives 10-bit, clamp to 8.
-    logic [25:0] r_sum, g_sum, b_sum;
-    logic [25:0] z_sum;   // For Z interpolation
+    // --- Color: W_W(16) * COLOR_W(8) products, summed 3 ways -> 16+8+2=26b
+    localparam int COLOR_SUM_W = W_W + COLOR_W + 2;   // 26
+
+    // --- Z: W_W(16) * Z_W(16) products, summed 3 ways -> 16+16+2=34b
+    localparam int Z_SUM_W = W_W + Z_W + 2;           // 34
+
+    // --- UV: W_W(16) * UV_W(16) products, summed 3 ways -> 16+16+2=34b
+    localparam int UV_SUM_W = W_W + UV_W + 2;         // 34
+
+    logic [COLOR_SUM_W-1:0] r_sum, g_sum, b_sum;
+    logic [Z_SUM_W-1:0]     z_sum;
+    logic [UV_SUM_W-1:0]    u_sum, v_sum;
 
     always_comb begin
         r_sum = (weight_alpha * v0_r) + (weight_beta * v1_r) + (weight_gamma * v2_r);
         g_sum = (weight_alpha * v0_g) + (weight_beta * v1_g) + (weight_gamma * v2_g);
         b_sum = (weight_alpha * v0_b) + (weight_beta * v1_b) + (weight_gamma * v2_b);
         z_sum = (weight_alpha * v0_z) + (weight_beta * v1_z) + (weight_gamma * v2_z);
+        u_sum = (weight_alpha * v0_u) + (weight_beta * v1_u) + (weight_gamma * v2_u);
+        v_sum = (weight_alpha * v0_v) + (weight_beta * v1_v) + (weight_gamma * v2_v);
     end
 
     logic [COLOR_W-1:0] r_clamped, g_clamped, b_clamped;
     logic [Z_W-1:0]     z_clamped;
+    logic [UV_W-1:0]    u_clamped, v_clamped;
 
-    // Clamp to max after shift (saturate instead of wrap)
-    assign r_clamped = (r_sum[25:16] > 8'd255) ? 8'd255 : r_sum[23:16];
-    assign g_clamped = (g_sum[25:16] > 8'd255) ? 8'd255 : g_sum[23:16];
-    assign b_clamped = (b_sum[25:16] > 8'd255) ? 8'd255 : b_sum[23:16];
-    assign z_clamped = z_sum[31:16];  // Z is 16-bit, take middle bits
+    // Clamp color to max after shift (saturate instead of wrap)
+    assign r_clamped = (r_sum[COLOR_SUM_W-1:16] > 8'd255) ? 8'd255 : r_sum[23:16];
+    assign g_clamped = (g_sum[COLOR_SUM_W-1:16] > 8'd255) ? 8'd255 : g_sum[23:16];
+    assign b_clamped = (b_sum[COLOR_SUM_W-1:16] > 8'd255) ? 8'd255 : b_sum[23:16];
+
+    // Z: straight slice, no saturation (weights sum to ~1.0, so no overflow
+    // expected for valid in-triangle pixels; upstream clamp keeps weights >= 0)
+    assign z_clamped = z_sum[Z_SUM_W-1:16];
+
+    // UV: straight slice, no saturation. If clamp-to-edge texture addressing
+    // is required, add explicit saturation here to match the color path;
+    // left as a passthrough slice for now since wrap-mode texturing wants
+    // this modular behavior anyway.
+    assign u_clamped = u_sum[UV_SUM_W-1:16];
+    assign v_clamped = v_sum[UV_SUM_W-1:16];
 
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
@@ -124,16 +156,23 @@ module pixel_shader #(
             ps_g     <= '0;
             ps_b     <= '0;
             ps_z     <= '0;
+
+            ps_tex_valid <= 1'b0;
+            ps_u         <= '0;
+            ps_v         <= '0;
         end else begin
-            ps_valid <= s1_valid;
-            ps_x     <= s1_x;
-            ps_y     <= s1_y;
+            ps_valid     <= s1_valid;
+            ps_tex_valid <= s1_valid;
+            ps_x         <= s1_x;
+            ps_y         <= s1_y;
 
             if (s1_valid) begin
                 ps_r <= r_clamped;
                 ps_g <= g_clamped;
                 ps_b <= b_clamped;
                 ps_z <= z_clamped;
+                ps_u <= u_clamped;
+                ps_v <= v_clamped;
             end
         end
     end
@@ -158,12 +197,18 @@ module pixel_shader #(
     endproperty
     a_color_in_range: assert property (p_color_in_range);
 
-    // Safety: pipeline latency is exactly 2 cycles
+    // Safety: pipeline latency is exactly 2 cycles (both color/Z and tex outputs)
     property p_two_cycle_latency;
         @(posedge clk) disable iff (!rst_n)
         raster_valid |=> ##2 ps_valid;
     endproperty
     a_two_cycle_latency: assert property (p_two_cycle_latency);
+
+    property p_tex_two_cycle_latency;
+        @(posedge clk) disable iff (!rst_n)
+        raster_valid |=> ##2 ps_tex_valid;
+    endproperty
+    a_tex_two_cycle_latency: assert property (p_tex_two_cycle_latency);
 
     // Safety: X/Y pass through unchanged
     property p_xy_passthrough;
@@ -172,6 +217,13 @@ module pixel_shader #(
     endproperty
     a_xy_passthrough: assert property (p_xy_passthrough);
 
+    // Safety: ps_valid and ps_tex_valid stay in lockstep (same source, same latency)
+    property p_valid_lockstep;
+        @(posedge clk) disable iff (!rst_n)
+        (ps_valid == ps_tex_valid);
+    endproperty
+    a_valid_lockstep: assert property (p_valid_lockstep);
+
 `ifdef FPV
     // Coverage: all weight combinations
     cover property (@(posedge clk) disable iff (!rst_n)
@@ -179,7 +231,17 @@ module pixel_shader #(
 
     // Coverage: color saturation (clamping active)
     cover property (@(posedge clk) disable iff (!rst_n)
-        s1_valid && (r_sum[25:16] > 255));
+        s1_valid && (r_sum[COLOR_SUM_W-1:16] > 255));
+
+    // Coverage: Z sum actually uses upper bits (would have been truncated
+    // under the old 26-bit z_sum width)
+    cover property (@(posedge clk) disable iff (!rst_n)
+        s1_valid && (z_sum[Z_SUM_W-1:26] != '0));
+
+    // Coverage: UV sum actually uses upper bits (would have been truncated
+    // under the old 32-bit u_sum/v_sum width)
+    cover property (@(posedge clk) disable iff (!rst_n)
+        s1_valid && ((u_sum[UV_SUM_W-1:32] != '0) || (v_sum[UV_SUM_W-1:32] != '0)));
 `endif
 
 endmodule
