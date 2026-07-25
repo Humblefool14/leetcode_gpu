@@ -163,7 +163,8 @@ module display_controller #(
     // low until the cycle where the next frame begins (v_count==0, h_count==0).
     property p_one_swap_per_frame;
         @(posedge clk) disable iff (!rst_n)
-        swap_buffers |=> !swap_buffers throughout (##1 (v_count == 0 && h_count == 0))[->1];
+        swap_buffers |=> !swap_buffers throughout ((v_count == 0 && h_count == 0))[->1];
+    // A goto-repetition operator [->1] can only be applied to a boolean expression, not to an already-delayed sequence.
     endproperty
     a_one_swap_per_frame: assert property (p_one_swap_per_frame);
 
