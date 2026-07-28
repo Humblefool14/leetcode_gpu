@@ -1,117 +1,50 @@
 `timescale 1ns / 1ps
 
-// ============================================================================
-// Vertex Shader Core (VS 1.1-style)
-// ============================================================================
-// - 4-component vector SIMD (x,y,z,w)
-// - Fixed-point arithmetic (default 16.16, parameterized)
-// - Single-issue, in-order 2-stage pipeline with RAW stall interlock
-// - Multi-cycle RCP/RSQ via Newton-Raphson iteration
-// ============================================================================
-
 module vertex_shader #(
-    parameter int DATA_W       = 32,    // Bits per vector component
-    parameter int FRAC_BITS    = 16,    // Fixed-point fraction width
-    parameter int PC_W         = 8,     // Program counter width
-    parameter int NUM_TEMP     = 12,    // r0-r11
-    parameter int NUM_CONST    = 16,    // c0-c15
-    parameter int NUM_INPUT    = 16,    // v0-v15
-    parameter int NUM_OUTPUT   = 12,    // o0-o11 (oPos=o0, oD0=o1, oT0=o5...)
-    parameter int INST_W       = 96     // Instruction width
+    parameter int DATA_W       = 32,
+    parameter int FRAC_BITS    = 16,
+    parameter int PC_W         = 8,
+    parameter int NUM_TEMP     = 12,
+    parameter int NUM_CONST    = 16,
+    parameter int NUM_INPUT    = 16,
+    parameter int NUM_OUTPUT   = 12,
+    parameter int INST_W       = 96
 )(
     input  logic              clk,
     input  logic              rst_n,
-
-    // ------------------------------------------------------------------------
-    // Control
-    // ------------------------------------------------------------------------
-    input  logic              start,        // Pulse to begin execution
+    input  logic              start,
     output logic              busy,
-    output logic              done,         // Pulses when a vertex finishes
-
-    // ------------------------------------------------------------------------
-    // Instruction Memory (external ROM/RAM)
-    // ------------------------------------------------------------------------
+    output logic              done,
     output logic [PC_W-1:0]   pc,
-    input  logic [INST_W-1:0] inst_rdata,   // Instruction at PC
-
-    // ------------------------------------------------------------------------
-    // Vertex Input Load (host fills v-regs before start)
-    // ------------------------------------------------------------------------
+    input  logic [INST_W-1:0] inst_rdata,
     input  logic              vin_valid,
-    input  logic [3:0]        vin_reg,      // 0-15
-    input  logic [3:0]        vin_mask,     // {w,z,y,x}
+    input  logic [3:0]        vin_reg,
+    input  logic [3:0]        vin_mask,
     input  logic [DATA_W-1:0] vin_data [0:3],
-
-    // ------------------------------------------------------------------------
-    // Constant Load (host fills c-regs before start)
-    // ------------------------------------------------------------------------
     input  logic              cin_valid,
     input  logic [3:0]        cin_reg,
     input  logic [3:0]        cin_mask,
     input  logic [DATA_W-1:0] cin_data [0:3],
-
-    // ------------------------------------------------------------------------
-    // Output Read (pops completed vertex output registers)
-    // ------------------------------------------------------------------------
     output logic              vout_valid,
-    output logic [3:0]        vout_reg,     // Which output register is valid
+    output logic [3:0]        vout_reg,
     output logic [DATA_W-1:0] vout_data [0:3],
     input  logic              vout_ack
 );
 
-    // =====================================================================
-    // Typedefs & Constants
-    // =====================================================================
-
     typedef enum logic [7:0] {
-        OP_NOP  = 8'h00,
-        OP_ADD  = 8'h01,
-        OP_SUB  = 8'h02,
-        OP_MUL  = 8'h03,
-        OP_MAD  = 8'h04,
-        OP_DP3  = 8'h05,
-        OP_DP4  = 8'h06,
-        OP_MOV  = 8'h07,
-        OP_MIN  = 8'h08,
-        OP_MAX  = 8'h09,
-        OP_SGE  = 8'h0A,
-        OP_SLT  = 8'h0B,
-        OP_RCP  = 8'h0C,
-        OP_RSQ  = 8'h0D,
-        OP_FRC  = 8'h0E,
-        OP_M4X4 = 8'h0F,  // 4-cycle matrix*vector
+        OP_NOP  = 8'h00, OP_ADD  = 8'h01, OP_SUB  = 8'h02, OP_MUL  = 8'h03,
+        OP_MAD  = 8'h04, OP_DP3  = 8'h05, OP_DP4  = 8'h06, OP_MOV  = 8'h07,
+        OP_MIN  = 8'h08, OP_MAX  = 8'h09, OP_SGE  = 8'h0A, OP_SLT  = 8'h0B,
+        OP_RCP  = 8'h0C, OP_RSQ  = 8'h0D, OP_FRC  = 8'h0E, OP_M4X4 = 8'h0F,
         OP_END  = 8'hFF
     } opcode_t;
 
     typedef enum logic [1:0] {
-        REG_TEMP   = 2'b00,
-        REG_INPUT  = 2'b01,
-        REG_CONST  = 2'b10,
-        REG_OUTPUT = 2'b11
+        REG_TEMP   = 2'b00, REG_INPUT  = 2'b01, REG_CONST  = 2'b10, REG_OUTPUT = 2'b11
     } reg_type_t;
 
-    localparam logic [DATA_W-1:0] ONE_FP = (1 << FRAC_BITS);  // 1.0 in fixed-point
+    localparam logic [DATA_W-1:0] ONE_FP = (1 << FRAC_BITS);
     localparam logic [DATA_W-1:0] ZERO_FP = '0;
-
-    // =====================================================================
-    // Instruction Decoding
-    // =====================================================================
-    // 96-bit instruction format:
-    // [95:88] opcode
-    // [87:84] dest_mask  {w,z,y,x}
-    // [83:82] dest_type
-    // [81:76] dest_idx
-    // [75:74] src0_type
-    // [73:68] src0_idx
-    // [67:60] src0_swizzle (8 bits: 2 per component)
-    // [59:58] src1_type
-    // [57:52] src1_idx
-    // [51:44] src1_swizzle
-    // [43:42] src2_type
-    // [41:36] src2_idx
-    // [35:28] src2_swizzle
-    // [27:0]  reserved
 
     opcode_t                  dec_opcode;
     logic [3:0]               dec_mask;
@@ -135,34 +68,23 @@ module vertex_shader #(
     assign dec_s2_idx   = inst_rdata[41:36];
     assign dec_s2_swz   = inst_rdata[35:28];
 
-    // =====================================================================
-    // Register Files
-    // =====================================================================
-
-    // 4 components x DATA_W bits
     logic [DATA_W-1:0] temp_reg   [0:NUM_TEMP-1][0:3];
     logic [DATA_W-1:0] const_reg  [0:NUM_CONST-1][0:3];
     logic [DATA_W-1:0] input_reg  [0:NUM_INPUT-1][0:3];
     logic [DATA_W-1:0] output_reg [0:NUM_OUTPUT-1][0:3];
 
-    // Write-enable per component
     logic [3:0]        wr_mask;
     logic [DATA_W-1:0] wr_data [0:3];
     logic [5:0]        wr_idx;
     reg_type_t         wr_type;
     logic              wr_en;
 
-    // ---------------------------------------------------------------------
-    // Async Read (3 ports for MAD)
-    // ---------------------------------------------------------------------
     logic [DATA_W-1:0] rd_data_s0 [0:3];
     logic [DATA_W-1:0] rd_data_s1 [0:3];
     logic [DATA_W-1:0] rd_data_s2 [0:3];
 
     function automatic logic [DATA_W-1:0] read_reg(
-        reg_type_t rtype,
-        logic [5:0] idx,
-        int comp
+        reg_type_t rtype, logic [5:0] idx, int comp
     );
         case (rtype)
             REG_TEMP:   return temp_reg[idx][comp];
@@ -182,9 +104,6 @@ module vertex_shader #(
         end
     endgenerate
 
-    // ---------------------------------------------------------------------
-    // Synchronous Write
-    // ---------------------------------------------------------------------
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             for (int i = 0; i < NUM_TEMP; i++)
@@ -198,7 +117,7 @@ module vertex_shader #(
                         case (wr_type)
                             REG_TEMP:   temp_reg[wr_idx][c]   <= wr_data[c];
                             REG_OUTPUT: output_reg[wr_idx][c] <= wr_data[c];
-                            default: ; // read-only or const
+                            default: ;
                         endcase
                     end
                 end
@@ -206,7 +125,6 @@ module vertex_shader #(
         end
     end
 
-    // Input/Const load from host (takes priority over ALU writeback)
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             for (int i = 0; i < NUM_INPUT; i++)
@@ -225,16 +143,8 @@ module vertex_shader #(
         end
     end
 
-    // =====================================================================
-    // Swizzle Logic
-    // =====================================================================
-    // swizzle bits: [7:6]=w, [5:4]=z, [3:2]=y, [1:0]=x
-    // 00=x, 01=y, 10=z, 11=w
-
     function automatic logic [DATA_W-1:0] apply_swizzle(
-        logic [DATA_W-1:0] vec [0:3],
-        logic [7:0] swz,
-        int lane
+        logic [DATA_W-1:0] vec [0:3], logic [7:0] swz, int lane
     );
         logic [1:0] sel;
         begin
@@ -266,33 +176,24 @@ module vertex_shader #(
         end
     endgenerate
 
-    // =====================================================================
-    // Control & PC
-    // =====================================================================
-
     typedef enum logic [2:0] {
-        ST_IDLE,
-        ST_RUN,
-        ST_STALL,       // RAW hazard stall
-        ST_RCP,         // Multi-cycle reciprocal
-        ST_RSQ,         // Multi-cycle reciprocal sqrt
-        ST_M4X4,        // Multi-cycle matrix multiply
-        ST_DONE
+        ST_IDLE, ST_RUN, ST_STALL, ST_RCP, ST_RSQ, ST_M4X4, ST_DONE
     } state_t;
 
     state_t state, next_state;
     logic [PC_W-1:0] pc_reg, pc_next;
-    logic [2:0]      mc_cnt;      // Multi-cycle counter
-    logic [DATA_W-1:0] mc_accum [0:3]; // Accumulator for multi-cycle ops
+    logic [2:0]      mc_cnt;
+    logic [DATA_W-1:0] mc_accum [0:3];
 
     assign pc = pc_reg;
 
-    // RAW hazard detection: if decode reads a temp/output that execute is writing
     logic raw_hazard;
+    // FIX: parens were missing, so && bound tighter than ||: only the first term
+    // was actually gated by (state == ST_RUN); the other two could assert regardless.
     assign raw_hazard = (state == ST_RUN) &&
-                        (dec_s0_type == wr_type && dec_s0_idx == wr_idx && wr_en) ||
-                        (dec_s1_type == wr_type && dec_s1_idx == wr_idx && wr_en) ||
-                        (dec_s2_type == wr_type && dec_s2_idx == wr_idx && wr_en);
+                        ((dec_s0_type == wr_type && dec_s0_idx == wr_idx && wr_en) ||
+                         (dec_s1_type == wr_type && dec_s1_idx == wr_idx && wr_en) ||
+                         (dec_s2_type == wr_type && dec_s2_idx == wr_idx && wr_en));
 
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
@@ -319,7 +220,6 @@ module vertex_shader #(
             ST_IDLE: begin
                 if (start) next_state = ST_RUN;
             end
-
             ST_RUN: begin
                 busy = 1'b1;
                 if (raw_hazard) begin
@@ -334,21 +234,18 @@ module vertex_shader #(
                     endcase
                 end
             end
-
             ST_STALL: begin
                 busy = 1'b1;
-                next_state = ST_RUN; // Resume next cycle (1-cycle bubble)
+                next_state = ST_RUN;
                 pc_next = pc_reg;
             end
-
             ST_RCP: begin
                 busy = 1'b1;
-                if (mc_cnt == 3) begin // 4-cycle Newton-Raphson
+                if (mc_cnt == 3) begin
                     next_state = ST_RUN;
                     pc_next = pc_reg + 1'b1;
                 end
             end
-
             ST_RSQ: begin
                 busy = 1'b1;
                 if (mc_cnt == 3) begin
@@ -356,41 +253,33 @@ module vertex_shader #(
                     pc_next = pc_reg + 1'b1;
                 end
             end
-
             ST_M4X4: begin
                 busy = 1'b1;
-                if (mc_cnt == 3) begin // 4 DP4 operations
+                if (mc_cnt == 3) begin
                     next_state = ST_RUN;
                     pc_next = pc_reg + 1'b1;
                 end
             end
-
             ST_DONE: begin
                 done = 1'b1;
-                if (!start) next_state = ST_IDLE; // Hold until start drops
+                if (!start) next_state = ST_IDLE;
             end
         endcase
     end
 
-    // =====================================================================
-    // SIMD ALU (4 lanes, combinational)
-    // =====================================================================
-
     logic [DATA_W-1:0] alu_result [0:3];
     logic [DATA_W*2-1:0] mul_wide [0:3];
 
-    // Fixed-point multiply: Q16.16 * Q16.16 -> Q32.32, then truncate to Q16.16
     function automatic logic [DATA_W-1:0] fx_mul(
-        logic [DATA_W-1:0] a,
-        logic [DATA_W-1:0] b
+        logic [DATA_W-1:0] a, logic [DATA_W-1:0] b
     );
-        logic [DATA_W*2-1:0] p = $signed(a) * $signed(b);
+        logic [DATA_W*2-1:0] p;
+        p = $signed(a) * $signed(b);
         return p[FRAC_BITS + DATA_W - 1 : FRAC_BITS];
     endfunction
 
-    // Dot product helpers
     logic [DATA_W*2-1:0] dp_prod [0:3];
-    logic [DATA_W+2:0]   dp_sum;  // Extra bits for 4-term sum
+    logic [DATA_W+2:0]   dp_sum;
     logic [DATA_W-1:0]   dp_result;
 
     generate
@@ -408,7 +297,6 @@ module vertex_shader #(
         dp_result = dp_sum[DATA_W-1:0];
     end
 
-    // Per-lane ALU
     generate
         genvar lane;
         for (lane = 0; lane < 4; lane++) begin : gen_alu_lane
@@ -419,90 +307,95 @@ module vertex_shader #(
                     OP_ADD:  alu_result[lane] = s0_swizzled[lane] + s1_swizzled[lane];
                     OP_SUB:  alu_result[lane] = s0_swizzled[lane] - s1_swizzled[lane];
                     OP_MUL:  alu_result[lane] = fx_mul(s0_swizzled[lane], s1_swizzled[lane]);
-                    OP_MAD:  alu_result[lane] = fx_mul(s0_swizzled[lane], s1_swizzled[lane])
-                                                 + s2_swizzled[lane];
+                    OP_MAD:  alu_result[lane] = fx_mul(s0_swizzled[lane], s1_swizzled[lane]) + s2_swizzled[lane];
                     OP_MOV:  alu_result[lane] = s0_swizzled[lane];
-                    OP_MIN:  alu_result[lane] = ($signed(s0_swizzled[lane]) < $signed(s1_swizzled[lane]))
-                                                 ? s0_swizzled[lane] : s1_swizzled[lane];
-                    OP_MAX:  alu_result[lane] = ($signed(s0_swizzled[lane]) > $signed(s1_swizzled[lane]))
-                                                 ? s0_swizzled[lane] : s1_swizzled[lane];
-                    OP_SGE:  alu_result[lane] = ($signed(s0_swizzled[lane]) >= $signed(s1_swizzled[lane]))
-                                                 ? ONE_FP : ZERO_FP;
-                    OP_SLT:  alu_result[lane] = ($signed(s0_swizzled[lane]) < $signed(s1_swizzled[lane]))
-                                                 ? ONE_FP : ZERO_FP;
+                    OP_MIN:  alu_result[lane] = ($signed(s0_swizzled[lane]) < $signed(s1_swizzled[lane])) ? s0_swizzled[lane] : s1_swizzled[lane];
+                    OP_MAX:  alu_result[lane] = ($signed(s0_swizzled[lane]) > $signed(s1_swizzled[lane])) ? s0_swizzled[lane] : s1_swizzled[lane];
+                    OP_SGE:  alu_result[lane] = ($signed(s0_swizzled[lane]) >= $signed(s1_swizzled[lane])) ? ONE_FP : ZERO_FP;
+                    OP_SLT:  alu_result[lane] = ($signed(s0_swizzled[lane]) < $signed(s1_swizzled[lane])) ? ONE_FP : ZERO_FP;
                     OP_FRC:  alu_result[lane] = {{(DATA_W-FRAC_BITS){1'b0}}, s0_swizzled[lane][FRAC_BITS-1:0]};
-                    OP_DP3:  alu_result[lane] = dp_result;  // Replicated
-                    OP_DP4:  alu_result[lane] = dp_result;  // Replicated
-                    OP_M4X4: alu_result[lane] = dp_result;  // Replicated per-row
+                    OP_DP3:  alu_result[lane] = dp_result;
+                    OP_DP4:  alu_result[lane] = dp_result;
+                    OP_M4X4: alu_result[lane] = dp_result;
                     default: alu_result[lane] = '0;
                 endcase
             end
         end
     endgenerate
 
-    // =====================================================================
-    // Special Function Unit (Newton-Raphson for RCP/RSQ)
-    // =====================================================================
-    // Fixed-point reciprocal: y = y*(2 - x*y), seeded from LUT or approx
-
     logic [DATA_W-1:0] sfu_result [0:3];
     logic [DATA_W-1:0] sfu_x, sfu_y;
+    logic [DATA_W-1:0] y_reg;    // FIX: flopped iterate, was missing -> combinational loop
+    logic [DATA_W-1:0] y_seed;
 
-    // Simple seed: for 16.16, approximate 1/x by shifting (very rough, 2 iterations)
-    // In a real design, use a 256-entry LUT for the seed.
+    // Crude seed: -x as a starting guess (placeholder; a real design should use a LUT)
+    assign y_seed = (~sfu_x + 1'b1);
+
     always_comb begin
-        sfu_x = s0_swizzled[0]; // Scalar operation, uses X component
-        // Seed: 1 / x ≈ (3/2 - x/2) for x near 1.0, normalized elsewhere
-        // For simplicity, we just do the iteration with a crude seed
-        sfu_y = mc_cnt == 0 ? (~sfu_x + 1'b1) : sfu_result[0]; // placeholder seed
+        sfu_x = s0_swizzled[0];
+        sfu_y = (mc_cnt == 0) ? y_seed : y_reg;
+    end
+
+    // FIX: register the Newton-Raphson iterate every cycle we're in ST_RCP/ST_RSQ.
+    // Without this flop, sfu_y and sfu_result formed a zero-delay combinational
+    // loop and the "4-cycle iteration" never actually advanced.
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            y_reg <= '0;
+        end else if (state == ST_RCP || state == ST_RSQ) begin
+            y_reg <= sfu_result[0];
+        end
     end
 
     always_comb begin
         if (state == ST_RCP) begin
-            // Newton-Raphson: y_{n+1} = y_n * (2 - x * y_n)
-            logic [DATA_W*2-1:0] xy = $signed(sfu_x) * $signed(sfu_y);
-            logic [DATA_W-1:0] xy_trunc = xy[FRAC_BITS + DATA_W - 1 : FRAC_BITS];
-            logic [DATA_W-1:0] two_minus = (2 * ONE_FP) - xy_trunc;
-            logic [DATA_W*2-1:0] y_next = $signed(sfu_y) * $signed(two_minus);
+            logic [DATA_W*2-1:0] xy;
+            logic [DATA_W-1:0] xy_trunc;
+            logic [DATA_W-1:0] two_minus;
+            logic [DATA_W*2-1:0] y_next;
+            xy = $signed(sfu_x) * $signed(sfu_y);
+            xy_trunc = xy[FRAC_BITS + DATA_W - 1 : FRAC_BITS];
+            two_minus = (2 * ONE_FP) - xy_trunc;
+            y_next = $signed(sfu_y) * $signed(two_minus);
             sfu_result[0] = y_next[FRAC_BITS + DATA_W - 1 : FRAC_BITS];
             sfu_result[1] = sfu_result[0];
             sfu_result[2] = sfu_result[0];
             sfu_result[3] = sfu_result[0];
         end else if (state == ST_RSQ) begin
-            // y_{n+1} = y_n * (3 - x*y_n^2) / 2
-            logic [DATA_W*2-1:0] yy = $signed(sfu_y) * $signed(sfu_y);
-            logic [DATA_W-1:0] yy_trunc = yy[FRAC_BITS + DATA_W - 1 : FRAC_BITS];
-            logic [DATA_W*2-1:0] xyy = $signed(sfu_x) * $signed(yy_trunc);
-            logic [DATA_W-1:0] xyy_trunc = xyy[FRAC_BITS + DATA_W - 1 : FRAC_BITS];
-            logic [DATA_W-1:0] three_minus = (3 * ONE_FP) - xyy_trunc;
-            logic [DATA_W*2-1:0] y_next = $signed(sfu_y) * $signed(three_minus);
-            sfu_result[0] = y_next[FRAC_BITS + DATA_W - 1 : FRAC_BITS + 1]; // divide by 2
+            logic [DATA_W*2-1:0] yy;
+            logic [DATA_W-1:0] yy_trunc;
+            logic [DATA_W*2-1:0] xyy;
+            logic [DATA_W-1:0] xyy_trunc;
+            logic [DATA_W-1:0] three_minus;
+            logic [DATA_W*2-1:0] y_next;
+            yy = $signed(sfu_y) * $signed(sfu_y);
+            yy_trunc = yy[FRAC_BITS + DATA_W - 1 : FRAC_BITS];
+            xyy = $signed(sfu_x) * $signed(yy_trunc);
+            xyy_trunc = xyy[FRAC_BITS + DATA_W - 1 : FRAC_BITS];
+            three_minus = (3 * ONE_FP) - xyy_trunc;
+            y_next = $signed(sfu_y) * $signed(three_minus);
+            sfu_result[0] = y_next[FRAC_BITS + DATA_W - 1 : FRAC_BITS + 1];
             sfu_result[1] = sfu_result[0];
             sfu_result[2] = sfu_result[0];
             sfu_result[3] = sfu_result[0];
         end else begin
-            sfu_result = '{default:'0};
+            sfu_result = '{ZERO_FP, ZERO_FP, ZERO_FP, ZERO_FP};
         end
     end
 
-    // =====================================================================
-    // M4X4 Multi-Cycle Logic
-    // =====================================================================
-    // OP_M4X4: dest = vector * 4x4 matrix
-    // src0 = vector, src1 = matrix row 0 (4 const regs), writes 4 consecutive outputs
-    // Simplified: treats src1 as row 0, and reads rows from next 3 const regs
-
-    logic [DATA_W-1:0] m4x4_result [0:3];
+    // FIX: M4X4 now produces ONE scalar dot-product per cycle (vector . row[mc_cnt]),
+    // which gets accumulated into mc_accum[mc_cnt] and assembled into a single
+    // 4-component destination register on the last cycle, instead of writing the
+    // same replicated scalar into 4 separate destination registers.
+    logic [DATA_W-1:0] m4x4_dot;
     logic [DATA_W-1:0] m4x4_row [0:3];
 
-    // Read matrix row based on mc_cnt from const regs starting at src1
     assign m4x4_row[0] = const_reg[dec_s1_idx + mc_cnt][0];
     assign m4x4_row[1] = const_reg[dec_s1_idx + mc_cnt][1];
     assign m4x4_row[2] = const_reg[dec_s1_idx + mc_cnt][2];
     assign m4x4_row[3] = const_reg[dec_s1_idx + mc_cnt][3];
 
     always_comb begin
-        // DP4 between src0 vector and matrix row
         logic [DATA_W*2-1:0] p [0:3];
         logic [DATA_W+2:0] sum;
         p[0] = $signed(s0_swizzled[0]) * $signed(m4x4_row[0]);
@@ -511,20 +404,26 @@ module vertex_shader #(
         p[3] = $signed(s0_swizzled[3]) * $signed(m4x4_row[3]);
         sum  = ($signed(p[0])>>>FRAC_BITS) + ($signed(p[1])>>>FRAC_BITS) +
                ($signed(p[2])>>>FRAC_BITS) + ($signed(p[3])>>>FRAC_BITS);
-        m4x4_result = '{sum[DATA_W-1:0], sum[DATA_W-1:0],
-                        sum[DATA_W-1:0], sum[DATA_W-1:0]};
+        m4x4_dot = sum[DATA_W-1:0];
     end
 
-    // =====================================================================
-    // Writeback Mux
-    // =====================================================================
+    // FIX: mc_accum was declared but never used. It now captures each row's dot
+    // product as it's computed (cycles 0-2), so the final cycle can assemble the
+    // complete 4-component result.
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            for (int i = 0; i < 4; i++) mc_accum[i] <= '0;
+        end else if (state == ST_M4X4) begin
+            mc_accum[mc_cnt] <= m4x4_dot;
+        end
+    end
 
     always_comb begin
         wr_en   = 1'b0;
         wr_type = REG_TEMP;
         wr_idx  = '0;
         wr_mask = '0;
-        wr_data = '{default:'0};
+        wr_data = '{ZERO_FP, ZERO_FP, ZERO_FP, ZERO_FP};
 
         if (state == ST_RUN && !raw_hazard && dec_opcode != OP_NOP && dec_opcode != OP_END) begin
             wr_en   = 1'b1;
@@ -544,18 +443,19 @@ module vertex_shader #(
             wr_idx  = dec_dst_idx;
             wr_mask = dec_mask;
             wr_data = sfu_result;
-        end else if (state == ST_M4X4) begin
-            wr_en   = 1'b1;
-            wr_type = dec_dst_type;
-            wr_idx  = dec_dst_idx + mc_cnt; // Write to consecutive outputs
-            wr_mask = 4'b1111;
-            wr_data = m4x4_result;
+        end else if (state == ST_M4X4 && mc_cnt == 3) begin
+            // FIX: single destination register, components assembled from the
+            // 3 previously-registered row dot products plus this cycle's row-3 result
+            wr_en      = 1'b1;
+            wr_type    = dec_dst_type;
+            wr_idx     = dec_dst_idx;
+            wr_mask    = 4'b1111;
+            wr_data[0] = mc_accum[0];
+            wr_data[1] = mc_accum[1];
+            wr_data[2] = mc_accum[2];
+            wr_data[3] = m4x4_dot;
         end
     end
-
-    // =====================================================================
-    // Output Interface (streams output registers when shader ends)
-    // =====================================================================
 
     logic [3:0] out_cnt;
     always_ff @(posedge clk or negedge rst_n) begin
@@ -575,22 +475,22 @@ module vertex_shader #(
         end
     end
 
-    // =====================================================================
-    // ASSERTIONS
-    // =====================================================================
-
-    // PC should not overflow program memory
     assert property (@(posedge clk) disable iff (!rst_n) pc_reg < (1<<PC_W));
-
-    // Only one of vin_valid/cin_valid should assert at a time (simplification)
     assert property (@(posedge clk) disable iff (!rst_n) !(vin_valid && cin_valid));
 
-    // Multi-cycle ops must complete in expected cycles
     assert property (@(posedge clk) disable iff (!rst_n)
         (state == ST_RCP) |-> ##[1:4] state != ST_RCP);
-
-    // END instruction must eventually be reached
     assert property (@(posedge clk) disable iff (!rst_n)
         (state == ST_RUN) |-> s_eventually (dec_opcode == OP_END));
+
+    // NEW: dec_dst_idx/dec_s1_idx are 6-bit decode fields but the register files
+    // are only NUM_TEMP/NUM_OUTPUT/NUM_CONST deep (12/12/16) -- catch any out-of-range
+    // write before it silently corrupts an unrelated register.
+    assert property (@(posedge clk) disable iff (!rst_n)
+        (wr_en && wr_type == REG_TEMP)   |-> (wr_idx < NUM_TEMP));
+    assert property (@(posedge clk) disable iff (!rst_n)
+        (wr_en && wr_type == REG_OUTPUT) |-> (wr_idx < NUM_OUTPUT));
+    assert property (@(posedge clk) disable iff (!rst_n)
+        (state == ST_M4X4) |-> ((dec_s1_idx + mc_cnt) < NUM_CONST));
 
 endmodule
