@@ -8,34 +8,52 @@ module vertex_shader #(
     parameter int NUM_CONST    = 16,
     parameter int NUM_INPUT    = 16,
     parameter int NUM_OUTPUT   = 12,
-    parameter int INST_W       = 96
+    parameter int INST_W       = 96,
+    parameter int MAX_GS_VERTS = 8      // strip depth for GS mode
 )(
     input  logic              clk,
     input  logic              rst_n,
     input  logic              start,
+    input  logic              mode_gs,      // 0 = VS (1 input vertex), 1 = GS (3 input vertices -> strip out)
     output logic              busy,
     output logic              done,
     output logic [PC_W-1:0]   pc,
     input  logic [INST_W-1:0] inst_rdata,
+
+    // vertex attribute load. vin_vtx selects which of the up-to-3 input vertex
+    // slots this load targets (VS mode: caller ties vin_vtx = 0)
     input  logic              vin_valid,
+    input  logic [1:0]        vin_vtx,
     input  logic [3:0]        vin_reg,
     input  logic [3:0]        vin_mask,
     input  logic [DATA_W-1:0] vin_data [0:3],
+
     input  logic              cin_valid,
     input  logic [3:0]        cin_reg,
     input  logic [3:0]        cin_mask,
     input  logic [DATA_W-1:0] cin_data [0:3],
-    output logic              vout_valid,
-    output logic [3:0]        vout_reg,
-    output logic [DATA_W-1:0] vout_data [0:3],
-    input  logic              vout_ack
+
+    // output stream: for VS this is 1 implicit vertex; for GS this walks the
+    // emitted strip in order (vout_vtx_idx increments each OP_EMIT boundary)
+    output logic                            vout_valid,
+    output logic [3:0]                      vout_reg,
+    output logic [$clog2(MAX_GS_VERTS)-1:0] vout_vtx_idx,
+    output logic                            vout_last,
+    output logic [DATA_W-1:0]               vout_data [0:3],
+    input  logic                            vout_ack,
+
+    // valid once `done` is high in GS mode: number of vertices in the strip
+    output logic [$clog2(MAX_GS_VERTS+1)-1:0] gs_vertex_count
 );
+
+    localparam int NUM_GS_IN_VERTS = 3;
 
     typedef enum logic [7:0] {
         OP_NOP  = 8'h00, OP_ADD  = 8'h01, OP_SUB  = 8'h02, OP_MUL  = 8'h03,
         OP_MAD  = 8'h04, OP_DP3  = 8'h05, OP_DP4  = 8'h06, OP_MOV  = 8'h07,
         OP_MIN  = 8'h08, OP_MAX  = 8'h09, OP_SGE  = 8'h0A, OP_SLT  = 8'h0B,
         OP_RCP  = 8'h0C, OP_RSQ  = 8'h0D, OP_FRC  = 8'h0E, OP_M4X4 = 8'h0F,
+        OP_EMIT = 8'h10,
         OP_END  = 8'hFF
     } opcode_t;
 
@@ -70,7 +88,8 @@ module vertex_shader #(
 
     logic [DATA_W-1:0] temp_reg   [0:NUM_TEMP-1][0:3];
     logic [DATA_W-1:0] const_reg  [0:NUM_CONST-1][0:3];
-    logic [DATA_W-1:0] input_reg  [0:NUM_INPUT-1][0:3];
+    // widened: up to 3 input vertex slots (VS mode only ever uses slot 0)
+    logic [DATA_W-1:0] input_reg  [0:NUM_GS_IN_VERTS-1][0:NUM_INPUT-1][0:3];
     logic [DATA_W-1:0] output_reg [0:NUM_OUTPUT-1][0:3];
 
     logic [3:0]        wr_mask;
@@ -83,17 +102,34 @@ module vertex_shader #(
     logic [DATA_W-1:0] rd_data_s1 [0:3];
     logic [DATA_W-1:0] rd_data_s2 [0:3];
 
+    // REG_INPUT addressing: idx[5:4] = vertex slot (0..2), idx[3:0] = reg #
     function automatic logic [DATA_W-1:0] read_reg(
         reg_type_t rtype, logic [5:0] idx, int comp
     );
         case (rtype)
             REG_TEMP:   return temp_reg[idx][comp];
-            REG_INPUT:  return input_reg[idx][comp];
+            REG_INPUT:  return input_reg[idx[5:4]][idx[3:0]][comp];
             REG_CONST:  return const_reg[idx][comp];
             REG_OUTPUT: return output_reg[idx][comp];
             default:    return '0;
         endcase
     endfunction
+
+    // bounds check for whichever register type/index a source operand names
+    function automatic logic idx_in_range(reg_type_t rtype, logic [5:0] idx);
+        case (rtype)
+            REG_TEMP:   return idx < NUM_TEMP;
+            REG_CONST:  return idx < NUM_CONST;
+            REG_OUTPUT: return idx < NUM_OUTPUT;
+            REG_INPUT:  return idx[5:4] < NUM_GS_IN_VERTS;
+            default:    return 1'b0;
+        endcase
+    endfunction
+
+    logic s0_in_range, s1_in_range, s2_in_range;
+    assign s0_in_range = idx_in_range(dec_s0_type, dec_s0_idx);
+    assign s1_in_range = idx_in_range(dec_s1_type, dec_s1_idx);
+    assign s2_in_range = idx_in_range(dec_s2_type, dec_s2_idx);
 
     generate
         genvar g;
@@ -127,14 +163,15 @@ module vertex_shader #(
 
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
-            for (int i = 0; i < NUM_INPUT; i++)
-                for (int j = 0; j < 4; j++) input_reg[i][j] <= '0;
+            for (int v = 0; v < NUM_GS_IN_VERTS; v++)
+                for (int i = 0; i < NUM_INPUT; i++)
+                    for (int j = 0; j < 4; j++) input_reg[v][i][j] <= '0;
             for (int i = 0; i < NUM_CONST; i++)
                 for (int j = 0; j < 4; j++) const_reg[i][j] <= '0;
         end else begin
             if (vin_valid) begin
                 for (int c = 0; c < 4; c++)
-                    if (vin_mask[c]) input_reg[vin_reg][c] <= vin_data[c];
+                    if (vin_mask[c]) input_reg[vin_vtx][vin_reg][c] <= vin_data[c];
             end
             if (cin_valid) begin
                 for (int c = 0; c < 4; c++)
@@ -176,8 +213,11 @@ module vertex_shader #(
         end
     endgenerate
 
+    // ST_STALL removed: single-instruction-at-a-time core has no RAW window,
+    // so the old raw_hazard signal (which fed back into wr_en, its own input)
+    // was a genuine combinational loop, not a real hazard guard.
     typedef enum logic [2:0] {
-        ST_IDLE, ST_RUN, ST_STALL, ST_RCP, ST_RSQ, ST_M4X4, ST_DONE
+        ST_IDLE, ST_RUN, ST_RCP, ST_RSQ, ST_M4X4, ST_DONE
     } state_t;
 
     state_t state, next_state;
@@ -186,14 +226,6 @@ module vertex_shader #(
     logic [DATA_W-1:0] mc_accum [0:3];
 
     assign pc = pc_reg;
-
-    logic raw_hazard;
-    // FIX: parens were missing, so && bound tighter than ||: only the first term
-    // was actually gated by (state == ST_RUN); the other two could assert regardless.
-    assign raw_hazard = (state == ST_RUN) &&
-                        ((dec_s0_type == wr_type && dec_s0_idx == wr_idx && wr_en) ||
-                         (dec_s1_type == wr_type && dec_s1_idx == wr_idx && wr_en) ||
-                         (dec_s2_type == wr_type && dec_s2_idx == wr_idx && wr_en));
 
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
@@ -222,22 +254,13 @@ module vertex_shader #(
             end
             ST_RUN: begin
                 busy = 1'b1;
-                if (raw_hazard) begin
-                    next_state = ST_STALL;
-                end else begin
-                    case (dec_opcode)
-                        OP_END:  next_state = ST_DONE;
-                        OP_RCP:  next_state = ST_RCP;
-                        OP_RSQ:  next_state = ST_RSQ;
-                        OP_M4X4: next_state = ST_M4X4;
-                        default: pc_next = pc_reg + 1'b1;
-                    endcase
-                end
-            end
-            ST_STALL: begin
-                busy = 1'b1;
-                next_state = ST_RUN;
-                pc_next = pc_reg;
+                case (dec_opcode)
+                    OP_END:  next_state = ST_DONE;
+                    OP_RCP:  next_state = ST_RCP;
+                    OP_RSQ:  next_state = ST_RSQ;
+                    OP_M4X4: next_state = ST_M4X4;
+                    default: pc_next = pc_reg + 1'b1; // covers ALU ops, OP_NOP, OP_EMIT
+                endcase
             end
             ST_RCP: begin
                 busy = 1'b1;
@@ -268,7 +291,6 @@ module vertex_shader #(
     end
 
     logic [DATA_W-1:0] alu_result [0:3];
-    logic [DATA_W*2-1:0] mul_wide [0:3];
 
     function automatic logic [DATA_W-1:0] fx_mul(
         logic [DATA_W-1:0] a, logic [DATA_W-1:0] b
@@ -289,11 +311,19 @@ module vertex_shader #(
         end
     endgenerate
 
+    // FIX: DP3 must only sum lanes 0-2 (xyz); it was summing all 4 lanes
+    // identically to DP4, silently pulling w into the dot product.
     always_comb begin
-        dp_sum = ($signed(dp_prod[0]) >>> FRAC_BITS) +
-                 ($signed(dp_prod[1]) >>> FRAC_BITS) +
-                 ($signed(dp_prod[2]) >>> FRAC_BITS) +
-                 ($signed(dp_prod[3]) >>> FRAC_BITS);
+        if (dec_opcode == OP_DP3) begin
+            dp_sum = ($signed(dp_prod[0]) >>> FRAC_BITS) +
+                     ($signed(dp_prod[1]) >>> FRAC_BITS) +
+                     ($signed(dp_prod[2]) >>> FRAC_BITS);
+        end else begin
+            dp_sum = ($signed(dp_prod[0]) >>> FRAC_BITS) +
+                     ($signed(dp_prod[1]) >>> FRAC_BITS) +
+                     ($signed(dp_prod[2]) >>> FRAC_BITS) +
+                     ($signed(dp_prod[3]) >>> FRAC_BITS);
+        end
         dp_result = dp_sum[DATA_W-1:0];
     end
 
@@ -325,10 +355,9 @@ module vertex_shader #(
 
     logic [DATA_W-1:0] sfu_result [0:3];
     logic [DATA_W-1:0] sfu_x, sfu_y;
-    logic [DATA_W-1:0] y_reg;    // FIX: flopped iterate, was missing -> combinational loop
+    logic [DATA_W-1:0] y_reg;
     logic [DATA_W-1:0] y_seed;
 
-    // Crude seed: -x as a starting guess (placeholder; a real design should use a LUT)
     assign y_seed = (~sfu_x + 1'b1);
 
     always_comb begin
@@ -336,9 +365,6 @@ module vertex_shader #(
         sfu_y = (mc_cnt == 0) ? y_seed : y_reg;
     end
 
-    // FIX: register the Newton-Raphson iterate every cycle we're in ST_RCP/ST_RSQ.
-    // Without this flop, sfu_y and sfu_result formed a zero-delay combinational
-    // loop and the "4-cycle iteration" never actually advanced.
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             y_reg <= '0;
@@ -383,10 +409,6 @@ module vertex_shader #(
         end
     end
 
-    // FIX: M4X4 now produces ONE scalar dot-product per cycle (vector . row[mc_cnt]),
-    // which gets accumulated into mc_accum[mc_cnt] and assembled into a single
-    // 4-component destination register on the last cycle, instead of writing the
-    // same replicated scalar into 4 separate destination registers.
     logic [DATA_W-1:0] m4x4_dot;
     logic [DATA_W-1:0] m4x4_row [0:3];
 
@@ -407,9 +429,6 @@ module vertex_shader #(
         m4x4_dot = sum[DATA_W-1:0];
     end
 
-    // FIX: mc_accum was declared but never used. It now captures each row's dot
-    // product as it's computed (cycles 0-2), so the final cycle can assemble the
-    // complete 4-component result.
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             for (int i = 0; i < 4; i++) mc_accum[i] <= '0;
@@ -425,7 +444,7 @@ module vertex_shader #(
         wr_mask = '0;
         wr_data = '{ZERO_FP, ZERO_FP, ZERO_FP, ZERO_FP};
 
-        if (state == ST_RUN && !raw_hazard && dec_opcode != OP_NOP && dec_opcode != OP_END) begin
+        if (state == ST_RUN && dec_opcode != OP_NOP && dec_opcode != OP_END && dec_opcode != OP_EMIT) begin
             wr_en   = 1'b1;
             wr_type = dec_dst_type;
             wr_idx  = dec_dst_idx;
@@ -444,8 +463,6 @@ module vertex_shader #(
             wr_mask = dec_mask;
             wr_data = sfu_result;
         end else if (state == ST_M4X4 && mc_cnt == 3) begin
-            // FIX: single destination register, components assembled from the
-            // 3 previously-registered row dot products plus this cycle's row-3 result
             wr_en      = 1'b1;
             wr_type    = dec_dst_type;
             wr_idx     = dec_dst_idx;
@@ -457,21 +474,71 @@ module vertex_shader #(
         end
     end
 
-    logic [3:0] out_cnt;
+    // ---------------- GS strip-emit FIFO ----------------
+    logic [DATA_W-1:0] emit_fifo [0:MAX_GS_VERTS-1][0:NUM_OUTPUT-1][0:3];
+    logic [$clog2(MAX_GS_VERTS+1)-1:0] emit_wr_ptr;
+
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
-            out_cnt    <= '0;
-            vout_valid <= 1'b0;
-        end else begin
-            if (state == ST_DONE && out_cnt < NUM_OUTPUT) begin
-                vout_valid <= 1'b1;
-                vout_reg   <= out_cnt;
-                vout_data  <= output_reg[out_cnt];
-                if (vout_ack) out_cnt <= out_cnt + 1'b1;
+            emit_wr_ptr <= '0;
+        end else if (state == ST_IDLE && start) begin
+            emit_wr_ptr <= '0; // new invocation, clear the strip
+        end else if (state == ST_RUN && dec_opcode == OP_EMIT) begin
+            emit_fifo[emit_wr_ptr] <= output_reg;
+            if (emit_wr_ptr < MAX_GS_VERTS - 1)
+                emit_wr_ptr <= emit_wr_ptr + 1'b1;
+        end
+    end
+
+    assign gs_vertex_count = emit_wr_ptr;
+
+    // ---------------- output drain ----------------
+    logic [3:0]                            out_reg_cnt; // register within current vertex
+    logic [$clog2(MAX_GS_VERTS)-1:0]       out_vtx_cnt; // which strip vertex (GS mode only)
+
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            out_reg_cnt  <= '0;
+            out_vtx_cnt  <= '0;
+            vout_valid   <= 1'b0;
+            vout_last    <= 1'b0;
+            vout_vtx_idx <= '0;
+        end else if (state == ST_DONE) begin
+            if (mode_gs) begin
+                if (out_vtx_cnt < emit_wr_ptr) begin
+                    vout_valid   <= 1'b1;
+                    vout_reg     <= out_reg_cnt;
+                    vout_vtx_idx <= out_vtx_cnt;
+                    vout_data    <= emit_fifo[out_vtx_cnt][out_reg_cnt];
+                    vout_last    <= (out_vtx_cnt == emit_wr_ptr - 1'b1) && (out_reg_cnt == NUM_OUTPUT - 1);
+                    if (vout_ack) begin
+                        if (out_reg_cnt == NUM_OUTPUT - 1) begin
+                            out_reg_cnt <= '0;
+                            out_vtx_cnt <= out_vtx_cnt + 1'b1;
+                        end else begin
+                            out_reg_cnt <= out_reg_cnt + 1'b1;
+                        end
+                    end
+                end else begin
+                    vout_valid <= 1'b0;
+                end
             end else begin
-                vout_valid <= 1'b0;
-                if (state != ST_DONE) out_cnt <= '0;
+                if (out_reg_cnt < NUM_OUTPUT) begin
+                    vout_valid   <= 1'b1;
+                    vout_reg     <= out_reg_cnt;
+                    vout_vtx_idx <= '0;
+                    vout_data    <= output_reg[out_reg_cnt];
+                    vout_last    <= (out_reg_cnt == NUM_OUTPUT - 1);
+                    if (vout_ack) out_reg_cnt <= out_reg_cnt + 1'b1;
+                end else begin
+                    vout_valid <= 1'b0;
+                end
             end
+        end else begin
+            vout_valid   <= 1'b0;
+            vout_last    <= 1'b0;
+            out_reg_cnt  <= '0;
+            out_vtx_cnt  <= '0;
         end
     end
 
@@ -483,14 +550,23 @@ module vertex_shader #(
     assert property (@(posedge clk) disable iff (!rst_n)
         (state == ST_RUN) |-> s_eventually (dec_opcode == OP_END));
 
-    // NEW: dec_dst_idx/dec_s1_idx are 6-bit decode fields but the register files
-    // are only NUM_TEMP/NUM_OUTPUT/NUM_CONST deep (12/12/16) -- catch any out-of-range
-    // write before it silently corrupts an unrelated register.
     assert property (@(posedge clk) disable iff (!rst_n)
         (wr_en && wr_type == REG_TEMP)   |-> (wr_idx < NUM_TEMP));
     assert property (@(posedge clk) disable iff (!rst_n)
         (wr_en && wr_type == REG_OUTPUT) |-> (wr_idx < NUM_OUTPUT));
     assert property (@(posedge clk) disable iff (!rst_n)
         (state == ST_M4X4) |-> ((dec_s1_idx + mc_cnt) < NUM_CONST));
+
+    // NEW: read-side bounds checks for all three source operands
+    assert property (@(posedge clk) disable iff (!rst_n)
+        (state == ST_RUN) |-> s0_in_range);
+    assert property (@(posedge clk) disable iff (!rst_n)
+        (state == ST_RUN) |-> s1_in_range);
+    assert property (@(posedge clk) disable iff (!rst_n)
+        (state == ST_RUN) |-> s2_in_range);
+
+    // NEW: emit FIFO must not overflow the strip depth
+    assert property (@(posedge clk) disable iff (!rst_n)
+        (state == ST_RUN && dec_opcode == OP_EMIT) |-> (emit_wr_ptr < MAX_GS_VERTS));
 
 endmodule
