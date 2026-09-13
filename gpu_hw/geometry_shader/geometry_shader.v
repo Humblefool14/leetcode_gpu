@@ -1,60 +1,63 @@
 `timescale 1ns / 1ps
 import tess_common_pkg::*;
 
-// Geometry Shader (GS).
+// Geometry Shader (GS) -- v2: adds indexed SRC_CPIN addressing + a small
+// branch/loop stack, so the program can express "for each valid input
+// vertex, do X, conditionally emit" instead of only fully-unrolled
+// straight-line code. Mirrors the branching/loop-stack pattern already used
+// in the vertex shader; this is the GS-specific instantiation of the same
+// idea, sized down since GS loop nesting is shallow in practice (loop over
+// input vertices, optionally loop over output attributes).
 //
-// Sits after TES + primitive assembly in the pipeline diagram (Tessellation
-// -> Geometry Shader -> Vertex Post-Processing). Structurally different from
-// TCS/TES: a GS invocation runs once per ASSEMBLED PRIMITIVE (not per vertex
-// or per control point), with visibility into every vertex of that primitive
-// simultaneously, and produces a variable-length stream of output vertices
-// grouped into output primitives via OP_EMIT (EmitVertex) / OP_CUT
-// (EndPrimitive).
+// ==================== REQUIRED tess_common_pkg CHANGES ====================
+// Add three new opcodes to tess_opcode_t (any encoding not already used):
+//   OP_LOOP_START,   // src0 = iteration count (see semantics below)
+//   OP_LOOP_END,     // closes the innermost open OP_LOOP_START
+//   OP_BRA           // conditional branch: if (src0 lane0 != 0) pc <- bra_target
+// No other package changes needed -- everything else reuses existing types
+// (tess_src_type_t, tess_dst_type_t) and 28 bits of the 96-bit instruction
+// word that were unused in v1 (bits [27:0]).
 //
-// ==================== FEATURES IMPLEMENTED ====================
-//  - Primitive-type-agnostic input: `prim_num_verts` tells the program how
-//    many of the MAX_IN_VERTS input vertex slots are valid this invocation,
-//    so one instance can serve points(1)/lines(2)/triangles(3)/
-//    lines_adjacency(4)/triangles_adjacency(6) -- same as GLSL's layout
-//    qualifiers picking the input primitive shape.
-//  - Whole-primitive vertex visibility: SRC_CPIN addressing is
-//    {vtx_sel, attr_sel}, so the program can read gl_in[k] for ANY k in the
-//    primitive, not just a single implicit vertex -- required for anything
-//    that needs edge/face info (flat-shaded normals, silhouette detection,
-//    shadow-volume extrusion, wireframe-with-barycentric tricks, etc.)
-//  - gl_PrimitiveIDIn passthrough via SRC_SPECIAL.
-//  - EmitVertex/EndPrimitive semantics: OP_EMIT snapshots the current
-//    output-attribute registers (out_reg) as a new vertex; those registers
-//    RETAIN their values across multiple OP_EMIT calls (matches GLSL, where
-//    you commonly set gl_Position per-emit but leave a per-primitive normal
-//    or color untouched across several emits). OP_CUT closes the current
-//    output primitive (marks the most recently emitted vertex as strip-end)
-//    and is a documented no-op if nothing has been emitted since the last
-//    cut/start, matching the GL spec.
-//  - Bounded output buffering: emit_buf holds up to MAX_OUT_VERTS vertices
-//    (the gl_MaxGeometryOutputVertices-style limit) before streaming out;
-//    exceeding it is caught by an assertion and additional emits are safely
-//    dropped rather than corrupting adjacent buffer entries.
-//  - Decoupled execution/streaming: like TES, the ALU program runs to
-//    completion (buffering emits) before any output streaming begins, so
-//    downstream consumers see a clean vout_valid/vout_ack/vout_cut stream
-//    with no back-pressure interaction with the ALU.
+// ==================== NEW INSTRUCTION FIELDS (bits [27:0], previously unused) ====
+//   [27:26] s0_idxm   -- 2'b00 = no indexing, 2'b01 = add idx_reg[0],
+//                        2'b10 = add idx_reg[1] to this source's SRC_CPIN
+//                        vertex-select field before the register read.
+//   [25:24] s1_idxm   -- same, for source 1
+//   [23:22] s2_idxm   -- same, for source 2
+//   [21:14] bra_target -- absolute PC target for OP_BRA (width = PC_W; the
+//                         parameterized default PC_W=8 exactly fits this
+//                         8-bit slice -- if you resize PC_W, resize this
+//                         field too).
+//   [13:0]  reserved
 //
-// ==================== FEATURES NOT IMPLEMENTED (documented gaps) ====================
-//  - GS instancing (`layout(invocations = N)` running the program N times
-//    per input primitive with a distinct gl_InvocationID) -- this module
-//    runs exactly one invocation per primitive. Would need an outer loop
-//    analogous to TCS's INV_RUN loop, re-using this same datapath.
-//  - Custom gl_Layer / gl_ViewportIndex output (layered rendering / viewport
-//    array) -- not modeled; assume single layer, single viewport downstream.
-//  - Multiple transform-feedback output streams (`layout(stream = N)`) --
-//    only a single output stream is produced.
-//  - Per-emitted-vertex gl_PrimitiveID override -- primitive ID is only
-//    consumed (passthrough input), never produced/reassigned on output.
-//  - Arbitrary output primitive topology changes mid-program beyond simple
-//    strip-cutting (e.g. simultaneously emitting to point AND line streams)
-//    -- one output topology per invocation, consistent with GLSL's single
-//    fixed `layout(triangle_strip, max_vertices = N) out;`-style declaration.
+// ==================== SEMANTICS ====================
+//  - idx_reg[0], idx_reg[1]: two small counters, each written implicitly by
+//    OP_LOOP_START/OP_LOOP_END (loop nest depth 0 and 1 respectively). They
+//    are NOT general-purpose registers -- they only exist to drive indexed
+//    SRC_CPIN addressing for "for each vertex" style loops. Programs that
+//    need a plain scalar loop counter for other purposes should still copy
+//    idx_reg into a temp_reg via a MOV-from-special path if needed (not
+//    added here to keep the change minimal).
+//  - OP_LOOP_START: push {return_pc = pc+1, count = src0 lane0 truncated to
+//    8 bits} onto loop_stack, reset the corresponding idx_reg to 0. Typical
+//    use: src0 reads prim_num_verts via SRC_SPECIAL so the loop trip count
+//    is the actual valid-vertex count for whatever primitive type is bound
+//    this invocation (points/lines/tris/adjacency), keeping the program
+//    primitive-type-agnostic as intended.
+//  - OP_LOOP_END: decrement the innermost frame's count; if it was already
+//    <=1, pop the frame and fall through (loop exits); otherwise jump back
+//    to the frame's stored pc and increment that nest level's idx_reg.
+//  - OP_BRA: predicated absolute jump. if (src0 lane0 != 0) pc <- bra_target
+//    else pc <- pc+1. Used for conditional emit (e.g. silhouette edge test)
+//    without needing a full jump-target-in-register mechanism.
+//  - LOOP_DEPTH is fixed at 2: one loop over input vertices is the common
+//    case (flat shading, silhouette extrusion), and a second nested level
+//    covers e.g. an inner loop over output attributes if a program wants
+//    one. Deeper nesting is not supported by this revision.
+//
+// (See v1 header comment for the rest of the module's behavior --
+// EmitVertex/EndPrimitive semantics, bounded output buffering, decoupled
+// execution/streaming -- all unchanged.)
 module geometry_shader #(
     parameter int PC_W          = 8,
     parameter int MAX_IN_VERTS  = 6,   // 1=point,2=line,3=tri,4=lines_adj,6=tris_adj
@@ -66,7 +69,8 @@ module geometry_shader #(
     parameter int INST_W        = 96,
     parameter int VTX_W         = $clog2(MAX_IN_VERTS),
     parameter int ATTR_W        = $clog2(NUM_IN_ATTR),
-    parameter int EMIT_W        = $clog2(MAX_OUT_VERTS+1)
+    parameter int EMIT_W        = $clog2(MAX_OUT_VERTS+1),
+    parameter int LOOP_DEPTH    = 2    // fixed nesting depth for the new loop stack
 )(
     input  logic               clk,
     input  logic               rst_n,
@@ -100,10 +104,12 @@ module geometry_shader #(
     output logic [EMIT_W-1:0]   total_emitted // valid once `done` is asserted
 );
 
-    // synthesis-time sanity check on the flattened SRC_CPIN addressing scheme
+    // synthesis-time sanity checks
     initial begin
         if (VTX_W + ATTR_W > 6)
             $error("geometry_shader: VTX_W(%0d)+ATTR_W(%0d) exceeds 6-bit source index field", VTX_W, ATTR_W);
+        if (PC_W > 8)
+            $error("geometry_shader: PC_W(%0d) exceeds the 8-bit bra_target instruction field", PC_W);
     end
 
     tess_opcode_t   dec_opcode;
@@ -113,6 +119,10 @@ module geometry_shader #(
     tess_src_type_t dec_s0_type, dec_s1_type, dec_s2_type;
     logic [5:0]     dec_s0_idx,  dec_s1_idx,  dec_s2_idx;
     logic [7:0]     dec_s0_swz,  dec_s1_swz,  dec_s2_swz;
+
+    // -- new fields, packed into the 28 bits that were unused in v1 --
+    logic [1:0]      dec_s0_idxm, dec_s1_idxm, dec_s2_idxm;
+    logic [PC_W-1:0] dec_bra_target;
 
     assign dec_opcode   = tess_opcode_t'(inst_rdata[95:88]);
     assign dec_dst_mask = inst_rdata[87:84];
@@ -128,6 +138,11 @@ module geometry_shader #(
     assign dec_s2_idx   = inst_rdata[41:36];
     assign dec_s2_swz   = inst_rdata[35:28];
 
+    assign dec_s0_idxm     = inst_rdata[27:26];
+    assign dec_s1_idxm     = inst_rdata[25:24];
+    assign dec_s2_idxm     = inst_rdata[23:22];
+    assign dec_bra_target  = inst_rdata[21:14];
+
     logic [DATA_W-1:0] temp_reg  [0:NUM_TEMP-1][0:3];
     logic [DATA_W-1:0] const_reg [0:NUM_CONST-1][0:3];
     logic [DATA_W-1:0] vin_reg   [0:MAX_IN_VERTS-1][0:NUM_IN_ATTR-1][0:3];
@@ -135,9 +150,23 @@ module geometry_shader #(
 
     logic [DATA_W-1:0] special_vec [0:3];
     assign special_vec[0] = primitive_id;
-    assign special_vec[1] = '0;
+    assign special_vec[1] = {{(DATA_W-3){1'b0}}, prim_num_verts}; // exposed so OP_LOOP_START can drive a
+                                                                    // "for each valid input vertex" loop
     assign special_vec[2] = '0;
     assign special_vec[3] = '0;
+
+    // -- new: loop stack + indexed-addressing counters --
+    typedef struct packed {
+        logic [PC_W-1:0] loop_pc;
+        logic [7:0]      count;
+    } loop_frame_t;
+
+    loop_frame_t loop_stack      [0:LOOP_DEPTH-1];
+    loop_frame_t loop_stack_next [0:LOOP_DEPTH-1];
+    logic [$clog2(LOOP_DEPTH+1)-1:0] loop_sp, loop_sp_next;
+
+    logic [VTX_W-1:0] idx_reg      [0:LOOP_DEPTH-1];
+    logic [VTX_W-1:0] idx_reg_next [0:LOOP_DEPTH-1];
 
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
@@ -168,15 +197,35 @@ module geometry_shader #(
         endcase
     endfunction
 
+    // -- new: apply indexed addressing to the vertex-select bits of a
+    // SRC_CPIN index before it reaches read_src. Only meaningful when the
+    // source type is SRC_CPIN and idxm != 0; for all other types/modes the
+    // raw decoded index passes through unchanged. Program correctness is
+    // responsible for keeping the resulting vertex-select in-range for
+    // MAX_IN_VERTS, same as v1's assumption for the raw decoded index.
+    function automatic logic [5:0] apply_idx_mode(
+        tess_src_type_t stype, logic [5:0] raw_idx, logic [1:0] idxm
+    );
+        logic [VTX_W-1:0] add_v;
+        if (stype != SRC_CPIN || idxm == 2'b00) return raw_idx;
+        add_v = (idxm == 2'b01) ? idx_reg[0] : idx_reg[1];
+        return raw_idx + (add_v << ATTR_W);
+    endfunction
+
+    logic [5:0] eff_s0_idx, eff_s1_idx, eff_s2_idx;
+    assign eff_s0_idx = apply_idx_mode(dec_s0_type, dec_s0_idx, dec_s0_idxm);
+    assign eff_s1_idx = apply_idx_mode(dec_s1_type, dec_s1_idx, dec_s1_idxm);
+    assign eff_s2_idx = apply_idx_mode(dec_s2_type, dec_s2_idx, dec_s2_idxm);
+
     logic [DATA_W-1:0] s0_raw [0:3], s1_raw [0:3], s2_raw [0:3];
     logic [DATA_W-1:0] s0_sw  [0:3], s1_sw  [0:3], s2_sw  [0:3];
 
     generate
         genvar gi;
         for (gi = 0; gi < 4; gi++) begin : gen_src_rd
-            assign s0_raw[gi] = read_src(dec_s0_type, dec_s0_idx, gi);
-            assign s1_raw[gi] = read_src(dec_s1_type, dec_s1_idx, gi);
-            assign s2_raw[gi] = read_src(dec_s2_type, dec_s2_idx, gi);
+            assign s0_raw[gi] = read_src(dec_s0_type, eff_s0_idx, gi);  // was dec_s0_idx
+            assign s1_raw[gi] = read_src(dec_s1_type, eff_s1_idx, gi);  // was dec_s1_idx
+            assign s2_raw[gi] = read_src(dec_s2_type, eff_s2_idx, gi);  // was dec_s2_idx
             assign s0_sw[gi]  = apply_swizzle(s0_raw, dec_s0_swz, gi);
             assign s1_sw[gi]  = apply_swizzle(s1_raw, dec_s1_swz, gi);
             assign s2_sw[gi]  = apply_swizzle(s2_raw, dec_s2_swz, gi);
@@ -199,7 +248,7 @@ module geometry_shader #(
                     OP_SGE:  alu_result[lane] = ($signed(s0_sw[lane]) >= $signed(s1_sw[lane])) ? ONE_FP : ZERO_FP;
                     OP_SLT:  alu_result[lane] = ($signed(s0_sw[lane]) <  $signed(s1_sw[lane])) ? ONE_FP : ZERO_FP;
                     OP_LERP: alu_result[lane] = s0_sw[lane] + fx_mul(s2_sw[lane], s1_sw[lane] - s0_sw[lane]);
-                    default: alu_result[lane] = '0; // OP_NOP/OP_EMIT/OP_CUT/OP_END don't write via alu_result
+                    default: alu_result[lane] = '0; // OP_NOP/OP_EMIT/OP_CUT/OP_END/OP_LOOP_*/OP_BRA don't write via alu_result
                 endcase
             end
         end
@@ -222,9 +271,17 @@ module geometry_shader #(
         if (!rst_n) begin
             state <= ST_IDLE; pc_reg <= '0; emit_wr_ptr <= '0;
             emit_rd_ptr <= '0; attr_idx <= '0;
+            loop_sp <= '0;
+            for (int i = 0; i < LOOP_DEPTH; i++) begin
+                loop_stack[i] <= '0;
+                idx_reg[i]    <= '0;
+            end
         end else begin
             state <= next_state; pc_reg <= pc_next; emit_wr_ptr <= emit_wr_ptr_next;
             emit_rd_ptr <= emit_rd_ptr_next; attr_idx <= attr_idx_next;
+            loop_sp <= loop_sp_next;
+            loop_stack <= loop_stack_next;
+            idx_reg <= idx_reg_next;
         end
     end
 
@@ -234,6 +291,9 @@ module geometry_shader #(
         emit_wr_ptr_next = emit_wr_ptr;
         emit_rd_ptr_next = emit_rd_ptr;
         attr_idx_next    = attr_idx;
+        loop_sp_next      = loop_sp;
+        loop_stack_next   = loop_stack;
+        idx_reg_next      = idx_reg;
         busy = 1'b0;
         done = 1'b0;
 
@@ -242,6 +302,7 @@ module geometry_shader #(
                 next_state       = ST_RUN;
                 pc_next          = '0;
                 emit_wr_ptr_next = '0;
+                loop_sp_next      = '0;   // fresh invocation starts with an empty loop stack
             end
             ST_RUN: begin
                 busy = 1'b1;
@@ -250,6 +311,31 @@ module geometry_shader #(
                         next_state       = ST_STREAM;
                         emit_rd_ptr_next = '0;
                         attr_idx_next    = '0;
+                    end
+                    OP_LOOP_START: begin
+                        // src0 (typically SRC_SPECIAL -> prim_num_verts) supplies the trip count.
+                        // Pushes onto the stack at the current loop_sp and resets that nesting
+                        // level's idx_reg to 0. Loop body starts at pc+1.
+                        loop_stack_next[loop_sp].loop_pc = pc_reg + 1'b1;
+                        loop_stack_next[loop_sp].count   = s0_sw[0][7:0];
+                        idx_reg_next[loop_sp]             = '0;
+                        loop_sp_next                      = loop_sp + 1'b1;
+                        pc_next                           = pc_reg + 1'b1;
+                    end
+                    OP_LOOP_END: begin
+                        // closes the innermost open loop (loop_sp-1)
+                        if (loop_stack[loop_sp-1].count <= 8'd1) begin
+                            loop_sp_next = loop_sp - 1'b1;      // trip count exhausted: pop, fall through
+                            pc_next      = pc_reg + 1'b1;
+                        end else begin
+                            loop_stack_next[loop_sp-1].count = loop_stack[loop_sp-1].count - 8'd1;
+                            idx_reg_next[loop_sp-1]           = idx_reg[loop_sp-1] + 1'b1;
+                            pc_next                            = loop_stack[loop_sp-1].loop_pc; // jump back
+                        end
+                    end
+                    OP_BRA: begin
+                        // predicated absolute jump: branch if src0 lane0 is non-zero
+                        pc_next = (s0_sw[0] != '0) ? dec_bra_target : pc_reg + 1'b1;
                     end
                     default: pc_next = pc_reg + 1'b1; // OP_EMIT/OP_CUT side effects handled in the FF block below
                 endcase
@@ -300,7 +386,7 @@ module geometry_shader #(
                     if (emit_wr_ptr > 0) emit_cut[emit_wr_ptr - 1] <= 1'b1;
                     // else: EndPrimitive with nothing emitted since last cut -- no-op, per GL spec
                 end
-                OP_NOP, OP_END: ; // no register writeback
+                OP_NOP, OP_END, OP_LOOP_START, OP_LOOP_END, OP_BRA: ; // no out_reg/temp_reg writeback
                 default: begin
                     for (int c = 0; c < 4; c++)
                         if (dec_dst_mask[c]) begin
@@ -327,5 +413,14 @@ module geometry_shader #(
     assert property (@(posedge clk) disable iff (!rst_n)
         (state == ST_RUN) |-> ##[1:256] state != ST_RUN);
     assert property (@(posedge clk) disable iff (!rst_n) prim_num_verts <= MAX_IN_VERTS);
+
+    // -- new: loop stack must never be popped/decremented past empty. If this fires,
+    // an OP_LOOP_END executed with no matching open OP_LOOP_START -- a program bug.
+    assert property (@(posedge clk) disable iff (!rst_n)
+        (state == ST_RUN && dec_opcode == OP_LOOP_END) |-> (loop_sp > 0))
+        else $error("geometry_shader: OP_LOOP_END with no open loop (loop_sp==0)");
+    assert property (@(posedge clk) disable iff (!rst_n)
+        (state == ST_RUN && dec_opcode == OP_LOOP_START) |-> (loop_sp < LOOP_DEPTH))
+        else $error("geometry_shader: OP_LOOP_START nesting exceeds LOOP_DEPTH=%0d", LOOP_DEPTH);
 
 endmodule
