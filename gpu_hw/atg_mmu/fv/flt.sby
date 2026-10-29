@@ -1,0 +1,34 @@
+[tasks]
+prove
+cover
+bmc
+
+[options]
+prove: mode prove
+prove: depth 20
+bmc: mode bmc
+bmc: depth 20
+cover: mode cover
+cover: depth 8
+
+[engines]
+prove: smtbmc z3
+bmc: smtbmc z3
+cover: smtbmc z3
+
+[script]
+read_verilog -formal -I.  atg_mmu_ram.v atg_mmu_arb.v atg_mmu_ifc.v atg_mmu_flt.v atg_tlb_l1.v atg_tlb_l2.v atg_mmu_walker.v atg_mmu.v
+read_verilog -sv -formal fv_flt.sv
+prep -top fv_flt
+
+[files]
+../rtl/atg_mmu_ram.v
+../rtl/atg_mmu_arb.v
+../rtl/atg_mmu_ifc.v
+../rtl/atg_mmu_flt.v
+../rtl/atg_tlb_l1.v
+../rtl/atg_tlb_l2.v
+../rtl/atg_mmu_walker.v
+../rtl/atg_mmu.v
+../rtl/atg_mmu_pkg.vh
+fv_flt.sv
