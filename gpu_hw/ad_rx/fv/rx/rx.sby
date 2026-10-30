@@ -1,0 +1,36 @@
+[tasks]
+bmc
+
+[options]
+mode bmc
+depth 12
+
+[engines]
+smtbmc yices
+
+[script]
+read -formal ad_rx_pkg.sv ad_rx_fadd.sv ad_rx_fmul.sv ad_rx_fdiv.sv ad_rx_f2fix.sv ad_rx_i2f.sv ad_rx_f2un.sv ad_rx_order.sv ad_rx_cov.sv ad_rx_coarse.sv ad_rx_hiz.sv ad_rx_cpoly.sv ad_rx_clip.sv ad_rx_edge.sv ad_rx_setup.sv ad_rx_scan.sv ad_rx_bary.sv ad_rx_frag.sv ad_rx_state.sv ad_rx.sv ad_rx_fv.sv
+prep -top ad_rx_fv
+
+[files]
+/home/claude/ad_rx/rtl/ad_rx_pkg.sv
+/home/claude/ad_rx/rtl/ad_rx_fadd.sv
+/home/claude/ad_rx/rtl/ad_rx_fmul.sv
+/home/claude/ad_rx/rtl/ad_rx_fdiv.sv
+/home/claude/ad_rx/rtl/ad_rx_f2fix.sv
+/home/claude/ad_rx/rtl/ad_rx_i2f.sv
+/home/claude/ad_rx/rtl/ad_rx_f2un.sv
+/home/claude/ad_rx/rtl/ad_rx_order.sv
+/home/claude/ad_rx/rtl/ad_rx_cov.sv
+/home/claude/ad_rx/rtl/ad_rx_coarse.sv
+/home/claude/ad_rx/rtl/ad_rx_hiz.sv
+/home/claude/ad_rx/rtl/ad_rx_cpoly.sv
+/home/claude/ad_rx/rtl/ad_rx_clip.sv
+/home/claude/ad_rx/rtl/ad_rx_edge.sv
+/home/claude/ad_rx/rtl/ad_rx_setup.sv
+/home/claude/ad_rx/rtl/ad_rx_scan.sv
+/home/claude/ad_rx/rtl/ad_rx_bary.sv
+/home/claude/ad_rx/rtl/ad_rx_frag.sv
+/home/claude/ad_rx/rtl/ad_rx_state.sv
+/home/claude/ad_rx/rtl/ad_rx.sv
+ad_rx_fv.sv

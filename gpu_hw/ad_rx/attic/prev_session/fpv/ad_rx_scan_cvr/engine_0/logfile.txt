@@ -1,0 +1,59 @@
+##   0:00:00  Solver: cvc5
+##   0:00:00  Checking cover reachability in step 0..
+##   0:00:00  Checking cover reachability in step 1..
+##   0:00:00  Checking cover reachability in step 2..
+##   0:00:00  Checking cover reachability in step 3..
+##   0:00:00  Checking cover reachability in step 4..
+##   0:00:03  Reached cover statement at ad_rx_scan.sv:141.13-143.81|ad_rx_cov.sv:100.38-100.67 ($flatten/u_cov.$cover$ad_rx_cov.sv:100$3368) in step 4.
+##   0:00:04  Writing trace to VCD file: engine_0/trace0.vcd
+##   0:00:05  Writing trace to Verilog testbench: engine_0/trace0_tb.v
+##   0:00:05  Writing trace to constraints file: engine_0/trace0.smtc
+##   0:00:05  Writing trace to Yosys witness file: engine_0/trace0.yw
+##   0:00:05  Checking cover reachability in step 4..
+##   0:00:05  Checking cover reachability in step 5..
+##   0:00:09  Reached cover statement at ad_rx_scan.sv:169.33-177.19|ad_rx_coarse.sv:283.46-284.49 ($flatten/u_coarse.$cover$ad_rx_coarse.sv:283$2905) in step 5.
+##   0:00:10  Writing trace to VCD file: engine_0/trace1.vcd
+##   0:00:11  Writing trace to Verilog testbench: engine_0/trace1_tb.v
+##   0:00:11  Writing trace to constraints file: engine_0/trace1.smtc
+##   0:00:11  Writing trace to Yosys witness file: engine_0/trace1.yw
+##   0:00:11  Checking cover reachability in step 5..
+##   0:00:14  Reached cover statement at ad_rx_scan.sv:169.33-177.19|ad_rx_coarse.sv:282.77-283.45 ($flatten/u_coarse.$cover$ad_rx_coarse.sv:282$2904) in step 5.
+##   0:00:15  Writing trace to VCD file: engine_0/trace2.vcd
+##   0:00:16  Writing trace to Verilog testbench: engine_0/trace2_tb.v
+##   0:00:16  Writing trace to constraints file: engine_0/trace2.smtc
+##   0:00:16  Writing trace to Yosys witness file: engine_0/trace2.yw
+##   0:00:17  Checking cover reachability in step 5..
+##   0:00:30  Reached cover statement at ad_rx_scan.sv:169.33-177.19|ad_rx_coarse.sv:281.54-282.76 ($flatten/u_coarse.$cover$ad_rx_coarse.sv:281$2903) in step 5.
+##   0:00:30  Reached cover statement at ad_rx_scan.sv:169.33-177.19|ad_rx_coarse.sv:280.44-281.53 ($flatten/u_coarse.$cover$ad_rx_coarse.sv:280$2902) in step 5.
+##   0:00:31  Writing trace to VCD file: engine_0/trace3.vcd
+##   0:00:32  Writing trace to Verilog testbench: engine_0/trace3_tb.v
+##   0:00:32  Writing trace to constraints file: engine_0/trace3.smtc
+##   0:00:32  Writing trace to Yosys witness file: engine_0/trace3.yw
+##   0:00:32  Checking cover reachability in step 5..
+##   0:00:35  Checking cover reachability in step 6..
+##   0:00:42  Checking cover reachability in step 7..
+##   0:00:57  Reached cover statement at ad_rx_scan.sv:469.91-470.53 ($cover$ad_rx_scan.sv:469$1919) in step 7.
+##   0:00:59  Writing trace to VCD file: engine_0/trace4.vcd
+##   0:01:03  Writing trace to Verilog testbench: engine_0/trace4_tb.v
+##   0:01:03  Writing trace to constraints file: engine_0/trace4.smtc
+##   0:01:03  Writing trace to Yosys witness file: engine_0/trace4.yw
+##   0:01:03  Checking cover reachability in step 7..
+##   0:01:43  Reached cover statement at ad_rx_scan.sv:468.44-469.90 ($cover$ad_rx_scan.sv:468$1918) in step 7.
+##   0:01:45  Writing trace to VCD file: engine_0/trace5.vcd
+##   0:01:49  Writing trace to Verilog testbench: engine_0/trace5_tb.v
+##   0:01:50  Writing trace to constraints file: engine_0/trace5.smtc
+##   0:01:50  Writing trace to Yosys witness file: engine_0/trace5.yw
+##   0:01:50  Checking cover reachability in step 7..
+##   0:02:02  Checking cover reachability in step 8..
+##   0:02:22  Checking cover reachability in step 9..
+##   0:02:55  Checking cover reachability in step 10..
+##   0:03:38  Checking cover reachability in step 11..
+##   0:04:38  waiting for solver (1 minute)
+##   0:06:41  Reached cover statement at ad_rx_scan.sv:471.61-472.36 ($cover$ad_rx_scan.sv:471$1921) in step 11.
+##   0:06:47  Writing trace to VCD file: engine_0/trace6.vcd
+##   0:07:01  Writing trace to Verilog testbench: engine_0/trace6_tb.v
+##   0:07:02  Writing trace to constraints file: engine_0/trace6.smtc
+##   0:07:02  Writing trace to Yosys witness file: engine_0/trace6.yw
+##   0:07:02  Checking cover reachability in step 11..
+##   0:08:02  waiting for solver (1 minute)
+##   0:09:05  Checking cover reachability in step 12..

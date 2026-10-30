@@ -1,0 +1,20 @@
+[tasks]
+bmc
+
+[options]
+mode bmc
+depth 34
+
+[engines]
+smtbmc yices
+
+[script]
+read -formal ad_rx_pkg.sv ad_rx_f2fix.sv ad_rx_i2f.sv ad_rx_edge.sv ad_rx_edge_fv.sv
+prep -top ad_rx_edge_fv
+
+[files]
+/home/claude/ad_rx/rtl/ad_rx_pkg.sv
+/home/claude/ad_rx/rtl/ad_rx_f2fix.sv
+/home/claude/ad_rx/rtl/ad_rx_i2f.sv
+/home/claude/ad_rx/rtl/ad_rx_edge.sv
+ad_rx_edge_fv.sv

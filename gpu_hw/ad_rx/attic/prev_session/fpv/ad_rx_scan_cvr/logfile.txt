@@ -1,0 +1,133 @@
+SBY  6:40:26 [ad_rx_scan_prv] Removing directory '/home/claude/ad_rx/fpv/ad_rx_scan_prv'.
+SBY  6:40:26 [ad_rx_scan_cvr] Removing directory '/home/claude/ad_rx/fpv/ad_rx_scan_cvr'.
+SBY  6:40:26 [ad_rx_scan_cvr] Copy '/home/claude/ad_rx/fpv/../rtl/ad_rx_pkg.sv' to '/home/claude/ad_rx/fpv/ad_rx_scan_cvr/src/ad_rx_pkg.sv'.
+SBY  6:40:26 [ad_rx_scan_cvr] Copy '/home/claude/ad_rx/fpv/../rtl/ad_rx_coarse.sv' to '/home/claude/ad_rx/fpv/ad_rx_scan_cvr/src/ad_rx_coarse.sv'.
+SBY  6:40:26 [ad_rx_scan_cvr] Copy '/home/claude/ad_rx/fpv/../rtl/ad_rx_cov.sv' to '/home/claude/ad_rx/fpv/ad_rx_scan_cvr/src/ad_rx_cov.sv'.
+SBY  6:40:26 [ad_rx_scan_cvr] Copy '/home/claude/ad_rx/fpv/../rtl/ad_rx_hiz.sv' to '/home/claude/ad_rx/fpv/ad_rx_scan_cvr/src/ad_rx_hiz.sv'.
+SBY  6:40:26 [ad_rx_scan_cvr] Copy '/home/claude/ad_rx/fpv/../rtl/ad_rx_i2f.sv' to '/home/claude/ad_rx/fpv/ad_rx_scan_cvr/src/ad_rx_i2f.sv'.
+SBY  6:40:26 [ad_rx_scan_cvr] Copy '/home/claude/ad_rx/fpv/../rtl/ad_rx_fadd.sv' to '/home/claude/ad_rx/fpv/ad_rx_scan_cvr/src/ad_rx_fadd.sv'.
+SBY  6:40:26 [ad_rx_scan_cvr] Copy '/home/claude/ad_rx/fpv/../rtl/ad_rx_fmul.sv' to '/home/claude/ad_rx/fpv/ad_rx_scan_cvr/src/ad_rx_fmul.sv'.
+SBY  6:40:26 [ad_rx_scan_cvr] Copy '/home/claude/ad_rx/fpv/../rtl/ad_rx_scan.sv' to '/home/claude/ad_rx/fpv/ad_rx_scan_cvr/src/ad_rx_scan.sv'.
+SBY  6:40:26 [ad_rx_scan_cvr] engine_0: smtbmc cvc5
+SBY  6:40:26 [ad_rx_scan_cvr] base: starting process "cd ad_rx_scan_cvr/src; yosys -ql ../model/design.log ../model/design.ys"
+SBY  6:40:26 [ad_rx_scan_cvr] base: Warning: Replacing memory \pyv with list of registers. See ad_rx_scan.sv:214, ad_rx_scan.sv:212
+SBY  6:40:26 [ad_rx_scan_cvr] base: Warning: Replacing memory \pxv with list of registers. See ad_rx_scan.sv:213, ad_rx_scan.sv:211
+SBY  6:40:26 [ad_rx_scan_cvr] base: Warning: Replacing memory \el with list of registers. See ad_rx_scan.sv:215, ad_rx_scan.sv:205
+SBY  6:40:26 [ad_rx_scan_cvr] base: Warning: Replacing memory \eqv with list of registers. See ad_rx_scan.sv:205, ad_rx_scan.sv:202
+SBY  6:40:26 [ad_rx_scan_cvr] base: Warning: Replacing memory \ebv with list of registers. See ad_rx_scan.sv:204, ad_rx_scan.sv:201
+SBY  6:40:26 [ad_rx_scan_cvr] base: Warning: Replacing memory \eav with list of registers. See ad_rx_scan.sv:203, ad_rx_scan.sv:200
+SBY  6:40:26 [ad_rx_scan_cvr] base: Warning: Replacing memory \f_ehere with list of registers. See ad_rx_coarse.sv:227
+SBY  6:40:26 [ad_rx_scan_cvr] base: Warning: Replacing memory \f_eref with list of registers. See ad_rx_coarse.sv:226
+SBY  6:40:26 [ad_rx_scan_cvr] base: Warning: Replacing memory \erow with list of registers. See ad_rx_coarse.sv:132
+SBY  6:40:26 [ad_rx_scan_cvr] base: Warning: Replacing memory \ecur with list of registers. See ad_rx_coarse.sv:132
+SBY  6:40:26 [ad_rx_scan_cvr] base: Warning: Replacing memory \er with list of registers. See ad_rx_coarse.sv:131
+SBY  6:40:26 [ad_rx_scan_cvr] base: Warning: Replacing memory \lm with list of registers. See ad_rx_coarse.sv:131
+SBY  6:40:26 [ad_rx_scan_cvr] base: Warning: Replacing memory \b8 with list of registers. See ad_rx_coarse.sv:131
+SBY  6:40:26 [ad_rx_scan_cvr] base: Warning: Replacing memory \a8 with list of registers. See ad_rx_coarse.sv:131
+SBY  6:40:26 [ad_rx_scan_cvr] base: Warning: Replacing memory \dmin with list of registers. See ad_rx_coarse.sv:101, ad_rx_coarse.sv:99
+SBY  6:40:26 [ad_rx_scan_cvr] base: Warning: Replacing memory \dmax with list of registers. See ad_rx_coarse.sv:100, ad_rx_coarse.sv:98
+SBY  6:40:26 [ad_rx_scan_cvr] base: Warning: Replacing memory \s7b with list of registers. See ad_rx_coarse.sv:98, ad_rx_coarse.sv:97
+SBY  6:40:26 [ad_rx_scan_cvr] base: Warning: Replacing memory \s7a with list of registers. See ad_rx_coarse.sv:98, ad_rx_coarse.sv:96
+SBY  6:40:26 [ad_rx_scan_cvr] base: Warning: Replacing memory \lm with list of registers. See ad_rx_cov.sv:56
+SBY  6:40:26 [ad_rx_scan_cvr] base: Warning: Replacing memory \q with list of registers. See ad_rx_cov.sv:44
+SBY  6:40:26 [ad_rx_scan_cvr] base: Warning: Replacing memory \p with list of registers. See ad_rx_cov.sv:43
+SBY  6:40:26 [ad_rx_scan_cvr] base: Warning: Replacing memory \eb with list of registers. See ad_rx_cov.sv:43, ad_rx_cov.sv:42
+SBY  6:40:26 [ad_rx_scan_cvr] base: Warning: Replacing memory \ea with list of registers. See ad_rx_cov.sv:43, ad_rx_cov.sv:41
+SBY  6:40:27 [ad_rx_scan_cvr] base: Warning: Wire $paramod\ad_rx_coarse\SKIP=1'1.\f_dy [2] is used but has no driver.
+SBY  6:40:27 [ad_rx_scan_cvr] base: Warning: Wire $paramod\ad_rx_coarse\SKIP=1'1.\f_dy [1] is used but has no driver.
+SBY  6:40:27 [ad_rx_scan_cvr] base: Warning: Wire $paramod\ad_rx_coarse\SKIP=1'1.\f_dy [0] is used but has no driver.
+SBY  6:40:27 [ad_rx_scan_cvr] base: Warning: Wire $paramod\ad_rx_coarse\SKIP=1'1.\f_dx [2] is used but has no driver.
+SBY  6:40:27 [ad_rx_scan_cvr] base: Warning: Wire $paramod\ad_rx_coarse\SKIP=1'1.\f_dx [1] is used but has no driver.
+SBY  6:40:27 [ad_rx_scan_cvr] base: Warning: Wire $paramod\ad_rx_coarse\SKIP=1'1.\f_dx [0] is used but has no driver.
+SBY  6:40:28 [ad_rx_scan_cvr] base: Warning: Selection "ad_rx_i2f" did not match any module.
+SBY  6:40:28 [ad_rx_scan_cvr] base: finished (returncode=0)
+SBY  6:40:29 [ad_rx_scan_cvr] prep: starting process "cd ad_rx_scan_cvr/model; yosys -ql design_prep.log design_prep.ys"
+SBY  6:40:29 [ad_rx_scan_cvr] prep: Warning: Wire ad_rx_scan.\u_coarse.f_dy [2] is used but has no driver.
+SBY  6:40:29 [ad_rx_scan_cvr] prep: Warning: Wire ad_rx_scan.\u_coarse.f_dy [1] is used but has no driver.
+SBY  6:40:29 [ad_rx_scan_cvr] prep: Warning: Wire ad_rx_scan.\u_coarse.f_dy [0] is used but has no driver.
+SBY  6:40:29 [ad_rx_scan_cvr] prep: Warning: Wire ad_rx_scan.\u_coarse.f_dx [2] is used but has no driver.
+SBY  6:40:29 [ad_rx_scan_cvr] prep: Warning: Wire ad_rx_scan.\u_coarse.f_dx [1] is used but has no driver.
+SBY  6:40:29 [ad_rx_scan_cvr] prep: Warning: Wire ad_rx_scan.\u_coarse.f_dx [0] is used but has no driver.
+SBY  6:40:30 [ad_rx_scan_cvr] prep: finished (returncode=0)
+SBY  6:40:31 [ad_rx_scan_cvr] smt2: starting process "cd ad_rx_scan_cvr/model; yosys -ql design_smt2.log design_smt2.ys"
+SBY  6:40:31 [ad_rx_scan_cvr] smt2: finished (returncode=0)
+SBY  6:40:31 [ad_rx_scan_cvr] engine_0: starting process "cd ad_rx_scan_cvr; yosys-smtbmc -s cvc5 --presat --unroll -c --noprogress -t 30  --append 0 --dump-vcd engine_0/trace%.vcd --dump-yw engine_0/trace%.yw --dump-vlogtb engine_0/trace%_tb.v --dump-smtc engine_0/trace%.smtc model/design_smt2.smt2"
+SBY  6:40:31 [ad_rx_scan_cvr] engine_0: ##   0:00:00  Solver: cvc5
+SBY  6:40:32 [ad_rx_scan_cvr] engine_0: ##   0:00:00  Checking cover reachability in step 0..
+SBY  6:40:32 [ad_rx_scan_cvr] engine_0: ##   0:00:00  Checking cover reachability in step 1..
+SBY  6:40:32 [ad_rx_scan_cvr] engine_0: ##   0:00:00  Checking cover reachability in step 2..
+SBY  6:40:32 [ad_rx_scan_cvr] engine_0: ##   0:00:00  Checking cover reachability in step 3..
+SBY  6:40:32 [ad_rx_scan_cvr] engine_0: ##   0:00:00  Checking cover reachability in step 4..
+SBY  6:40:35 [ad_rx_scan_cvr] engine_0: ##   0:00:03  Reached cover statement at ad_rx_scan.sv:141.13-143.81|ad_rx_cov.sv:100.38-100.67 ($flatten/u_cov.$cover$ad_rx_cov.sv:100$3368) in step 4.
+SBY  6:40:36 [ad_rx_scan_cvr] engine_0: ##   0:00:04  Writing trace to VCD file: engine_0/trace0.vcd
+SBY  6:40:36 [ad_rx_scan_cvr] engine_0: ##   0:00:05  Writing trace to Verilog testbench: engine_0/trace0_tb.v
+SBY  6:40:37 [ad_rx_scan_cvr] engine_0: ##   0:00:05  Writing trace to constraints file: engine_0/trace0.smtc
+SBY  6:40:37 [ad_rx_scan_cvr] engine_0: ##   0:00:05  Writing trace to Yosys witness file: engine_0/trace0.yw
+SBY  6:40:37 [ad_rx_scan_cvr] engine_0: ##   0:00:05  Checking cover reachability in step 4..
+SBY  6:40:37 [ad_rx_scan_cvr] engine_0: ##   0:00:05  Checking cover reachability in step 5..
+SBY  6:40:41 [ad_rx_scan_cvr] engine_0: ##   0:00:09  Reached cover statement at ad_rx_scan.sv:169.33-177.19|ad_rx_coarse.sv:283.46-284.49 ($flatten/u_coarse.$cover$ad_rx_coarse.sv:283$2905) in step 5.
+SBY  6:40:42 [ad_rx_scan_cvr] engine_0: ##   0:00:10  Writing trace to VCD file: engine_0/trace1.vcd
+SBY  6:40:43 [ad_rx_scan_cvr] engine_0: ##   0:00:11  Writing trace to Verilog testbench: engine_0/trace1_tb.v
+SBY  6:40:43 [ad_rx_scan_cvr] engine_0: ##   0:00:11  Writing trace to constraints file: engine_0/trace1.smtc
+SBY  6:40:43 [ad_rx_scan_cvr] engine_0: ##   0:00:11  Writing trace to Yosys witness file: engine_0/trace1.yw
+SBY  6:40:43 [ad_rx_scan_cvr] engine_0: ##   0:00:11  Checking cover reachability in step 5..
+SBY  6:40:46 [ad_rx_scan_cvr] engine_0: ##   0:00:14  Reached cover statement at ad_rx_scan.sv:169.33-177.19|ad_rx_coarse.sv:282.77-283.45 ($flatten/u_coarse.$cover$ad_rx_coarse.sv:282$2904) in step 5.
+SBY  6:40:47 [ad_rx_scan_cvr] engine_0: ##   0:00:15  Writing trace to VCD file: engine_0/trace2.vcd
+SBY  6:40:48 [ad_rx_scan_cvr] engine_0: ##   0:00:16  Writing trace to Verilog testbench: engine_0/trace2_tb.v
+SBY  6:40:48 [ad_rx_scan_cvr] engine_0: ##   0:00:16  Writing trace to constraints file: engine_0/trace2.smtc
+SBY  6:40:48 [ad_rx_scan_cvr] engine_0: ##   0:00:16  Writing trace to Yosys witness file: engine_0/trace2.yw
+SBY  6:40:49 [ad_rx_scan_cvr] engine_0: ##   0:00:17  Checking cover reachability in step 5..
+SBY  6:41:02 [ad_rx_scan_cvr] engine_0: ##   0:00:30  Reached cover statement at ad_rx_scan.sv:169.33-177.19|ad_rx_coarse.sv:281.54-282.76 ($flatten/u_coarse.$cover$ad_rx_coarse.sv:281$2903) in step 5.
+SBY  6:41:02 [ad_rx_scan_cvr] engine_0: ##   0:00:30  Reached cover statement at ad_rx_scan.sv:169.33-177.19|ad_rx_coarse.sv:280.44-281.53 ($flatten/u_coarse.$cover$ad_rx_coarse.sv:280$2902) in step 5.
+SBY  6:41:03 [ad_rx_scan_cvr] engine_0: ##   0:00:31  Writing trace to VCD file: engine_0/trace3.vcd
+SBY  6:41:04 [ad_rx_scan_cvr] engine_0: ##   0:00:32  Writing trace to Verilog testbench: engine_0/trace3_tb.v
+SBY  6:41:04 [ad_rx_scan_cvr] engine_0: ##   0:00:32  Writing trace to constraints file: engine_0/trace3.smtc
+SBY  6:41:04 [ad_rx_scan_cvr] engine_0: ##   0:00:32  Writing trace to Yosys witness file: engine_0/trace3.yw
+SBY  6:41:04 [ad_rx_scan_cvr] engine_0: ##   0:00:32  Checking cover reachability in step 5..
+SBY  6:41:07 [ad_rx_scan_cvr] engine_0: ##   0:00:35  Checking cover reachability in step 6..
+SBY  6:41:14 [ad_rx_scan_cvr] engine_0: ##   0:00:42  Checking cover reachability in step 7..
+SBY  6:41:29 [ad_rx_scan_cvr] engine_0: ##   0:00:57  Reached cover statement at ad_rx_scan.sv:469.91-470.53 ($cover$ad_rx_scan.sv:469$1919) in step 7.
+SBY  6:41:31 [ad_rx_scan_cvr] engine_0: ##   0:00:59  Writing trace to VCD file: engine_0/trace4.vcd
+SBY  6:41:35 [ad_rx_scan_cvr] engine_0: ##   0:01:03  Writing trace to Verilog testbench: engine_0/trace4_tb.v
+SBY  6:41:35 [ad_rx_scan_cvr] engine_0: ##   0:01:03  Writing trace to constraints file: engine_0/trace4.smtc
+SBY  6:41:35 [ad_rx_scan_cvr] engine_0: ##   0:01:03  Writing trace to Yosys witness file: engine_0/trace4.yw
+SBY  6:41:35 [ad_rx_scan_cvr] engine_0: ##   0:01:03  Checking cover reachability in step 7..
+SBY  6:42:15 [ad_rx_scan_cvr] engine_0: ##   0:01:43  Reached cover statement at ad_rx_scan.sv:468.44-469.90 ($cover$ad_rx_scan.sv:468$1918) in step 7.
+SBY  6:42:17 [ad_rx_scan_cvr] engine_0: ##   0:01:45  Writing trace to VCD file: engine_0/trace5.vcd
+SBY  6:42:21 [ad_rx_scan_cvr] engine_0: ##   0:01:49  Writing trace to Verilog testbench: engine_0/trace5_tb.v
+SBY  6:42:22 [ad_rx_scan_cvr] engine_0: ##   0:01:50  Writing trace to constraints file: engine_0/trace5.smtc
+SBY  6:42:22 [ad_rx_scan_cvr] engine_0: ##   0:01:50  Writing trace to Yosys witness file: engine_0/trace5.yw
+SBY  6:42:22 [ad_rx_scan_cvr] engine_0: ##   0:01:50  Checking cover reachability in step 7..
+SBY  6:42:34 [ad_rx_scan_cvr] engine_0: ##   0:02:02  Checking cover reachability in step 8..
+SBY  6:42:54 [ad_rx_scan_cvr] engine_0: ##   0:02:22  Checking cover reachability in step 9..
+SBY  6:43:27 [ad_rx_scan_cvr] engine_0: ##   0:02:55  Checking cover reachability in step 10..
+SBY  6:44:10 [ad_rx_scan_cvr] engine_0: ##   0:03:38  Checking cover reachability in step 11..
+SBY  6:45:10 [ad_rx_scan_cvr] engine_0: ##   0:04:38  waiting for solver (1 minute)
+SBY  6:47:13 [ad_rx_scan_cvr] engine_0: ##   0:06:41  Reached cover statement at ad_rx_scan.sv:471.61-472.36 ($cover$ad_rx_scan.sv:471$1921) in step 11.
+SBY  6:47:19 [ad_rx_scan_cvr] engine_0: ##   0:06:47  Writing trace to VCD file: engine_0/trace6.vcd
+SBY  6:47:33 [ad_rx_scan_cvr] engine_0: ##   0:07:01  Writing trace to Verilog testbench: engine_0/trace6_tb.v
+SBY  6:47:34 [ad_rx_scan_cvr] engine_0: ##   0:07:02  Writing trace to constraints file: engine_0/trace6.smtc
+SBY  6:47:34 [ad_rx_scan_cvr] engine_0: ##   0:07:02  Writing trace to Yosys witness file: engine_0/trace6.yw
+SBY  6:47:34 [ad_rx_scan_cvr] engine_0: ##   0:07:02  Checking cover reachability in step 11..
+SBY  6:48:34 [ad_rx_scan_cvr] engine_0: ##   0:08:02  waiting for solver (1 minute)
+SBY  6:49:37 [ad_rx_scan_cvr] engine_0: ##   0:09:05  Checking cover reachability in step 12..
+SBY  6:50:27 [ad_rx_scan_cvr] Reached TIMEOUT (600 seconds). Terminating all subprocesses.
+SBY  6:50:27 [ad_rx_scan_cvr] engine_0: terminating process
+SBY  6:50:27 [ad_rx_scan_cvr] summary: Elapsed clock time [H:MM:SS (secs)]: 0:10:01 (601)
+SBY  6:50:27 [ad_rx_scan_cvr] summary: Elapsed process time [H:MM:SS (secs)]: 0:00:12 (12)
+SBY  6:50:27 [ad_rx_scan_cvr] summary: engine_0 (smtbmc cvc5) did not return a status
+SBY  6:50:27 [ad_rx_scan_cvr] summary: trace: ad_rx_scan_cvr/engine_0/trace0.vcd
+SBY  6:50:27 [ad_rx_scan_cvr] summary: trace: ad_rx_scan_cvr/engine_0/trace1.vcd
+SBY  6:50:27 [ad_rx_scan_cvr] summary: trace: ad_rx_scan_cvr/engine_0/trace2.vcd
+SBY  6:50:27 [ad_rx_scan_cvr] summary: trace: ad_rx_scan_cvr/engine_0/trace3.vcd
+SBY  6:50:27 [ad_rx_scan_cvr] summary: trace: ad_rx_scan_cvr/engine_0/trace4.vcd
+SBY  6:50:27 [ad_rx_scan_cvr] summary: and 2 further traces
+SBY  6:50:27 [ad_rx_scan_cvr] summary: unreached cover statements:
+SBY  6:50:27 [ad_rx_scan_cvr] summary:   ad_rx_scan.$cover$ad_rx_scan.sv:468$1918 at ad_rx_scan.sv:468.44-469.90
+SBY  6:50:27 [ad_rx_scan_cvr] summary:   ad_rx_scan.$cover$ad_rx_scan.sv:469$1919 at ad_rx_scan.sv:469.91-470.53
+SBY  6:50:27 [ad_rx_scan_cvr] summary:   ad_rx_scan.$cover$ad_rx_scan.sv:470$1920 at ad_rx_scan.sv:470.54-471.60
+SBY  6:50:27 [ad_rx_scan_cvr] summary:   ad_rx_scan.$cover$ad_rx_scan.sv:471$1921 at ad_rx_scan.sv:471.61-472.36
+SBY  6:50:27 [ad_rx_scan_cvr] summary:   ad_rx_scan.$flatten\u_coarse.$cover$ad_rx_coarse.sv:280$2902 at ad_rx_scan.sv:169.33-177.19|ad_rx_coarse.sv:280.44-281.53
+SBY  6:50:27 [ad_rx_scan_cvr] summary:   and 4 further properties
+SBY  6:50:27 [ad_rx_scan_cvr] summary: see ad_rx_scan_cvr/TIMEOUT for a complete summary
+SBY  6:50:27 [ad_rx_scan_cvr] DONE (TIMEOUT, rc=8)

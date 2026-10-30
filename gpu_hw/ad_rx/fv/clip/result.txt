@@ -1,0 +1,1 @@
+clip: BOUNDED (bmc: steps 0-14 clean, step 15 unfinished at the 600s limit (asked 40)) 611.7s
