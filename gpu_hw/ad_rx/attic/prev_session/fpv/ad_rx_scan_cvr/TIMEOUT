@@ -1,0 +1,27 @@
+Elapsed clock time [H:MM:SS (secs)]: 0:10:01 (601)
+Elapsed process time [H:MM:SS (secs)]: 0:00:12 (12)
+engine_0 (smtbmc cvc5) did not return a status
+trace: engine_0/trace0.vcd
+trace: engine_0/trace0.yw
+trace: engine_0/trace1.vcd
+trace: engine_0/trace1.yw
+trace: engine_0/trace2.vcd
+trace: engine_0/trace2.yw
+trace: engine_0/trace3.vcd
+trace: engine_0/trace3.yw
+trace: engine_0/trace4.vcd
+trace: engine_0/trace4.yw
+trace: engine_0/trace5.vcd
+trace: engine_0/trace5.yw
+trace: engine_0/trace6.vcd
+trace: engine_0/trace6.yw
+unreached cover statements:
+  ad_rx_scan.$cover$ad_rx_scan.sv:468$1918 at ad_rx_scan.sv:468.44-469.90
+  ad_rx_scan.$cover$ad_rx_scan.sv:469$1919 at ad_rx_scan.sv:469.91-470.53
+  ad_rx_scan.$cover$ad_rx_scan.sv:470$1920 at ad_rx_scan.sv:470.54-471.60
+  ad_rx_scan.$cover$ad_rx_scan.sv:471$1921 at ad_rx_scan.sv:471.61-472.36
+  ad_rx_scan.$flatten\u_coarse.$cover$ad_rx_coarse.sv:280$2902 at ad_rx_scan.sv:169.33-177.19|ad_rx_coarse.sv:280.44-281.53
+  ad_rx_scan.$flatten\u_coarse.$cover$ad_rx_coarse.sv:281$2903 at ad_rx_scan.sv:169.33-177.19|ad_rx_coarse.sv:281.54-282.76
+  ad_rx_scan.$flatten\u_coarse.$cover$ad_rx_coarse.sv:282$2904 at ad_rx_scan.sv:169.33-177.19|ad_rx_coarse.sv:282.77-283.45
+  ad_rx_scan.$flatten\u_coarse.$cover$ad_rx_coarse.sv:283$2905 at ad_rx_scan.sv:169.33-177.19|ad_rx_coarse.sv:283.46-284.49
+  ad_rx_scan.$flatten\u_cov.$cover$ad_rx_cov.sv:100$3368 at ad_rx_scan.sv:141.13-143.81|ad_rx_cov.sv:100.38-100.67

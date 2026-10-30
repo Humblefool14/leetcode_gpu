@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+<testsuite timestamp="2026-10-30T06:50:27" hostname="vm" package="ad_rx_scan" id="0" name="bmc" tests="48" errors="0" failures="1" time="12" skipped="48">
+<properties>
+<property name="os" value="Linux"/>
+<property name="expect" value="PASS"/>
+<property name="status" value="TIMEOUT"/>
+</properties>
+<testcase classname="bmc" name="build execution" time="0">
+<failure type="TIMEOUT" message="Task returned status TIMEOUT." />
+</testcase>
+<testcase classname="bmc" name="Property ASSERT in ad_rx_scan at ad_rx_scan.sv:423.22-423.36" time="0" type="ASSERT" location="ad_rx_scan.sv:423.22-423.36" id="$assert$ad_rx_scan.sv:423$2205">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property ASSERT in ad_rx_scan at ad_rx_scan.sv:425.38-426.91" time="0" type="ASSERT" location="ad_rx_scan.sv:425.38-426.91" id="$assert$ad_rx_scan.sv:425$2206">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property ASSERT in ad_rx_scan at ad_rx_scan.sv:427.38-428.95" time="0" type="ASSERT" location="ad_rx_scan.sv:427.38-428.95" id="$assert$ad_rx_scan.sv:427$2207">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property ASSERT in ad_rx_scan at ad_rx_scan.sv:428.96-430.37" time="0" type="ASSERT" location="ad_rx_scan.sv:428.96-430.37" id="$assert$ad_rx_scan.sv:428$2208">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property ASSERT in ad_rx_scan at ad_rx_scan.sv:431.18-431.35" time="0" type="ASSERT" location="ad_rx_scan.sv:431.18-431.35" id="$assert$ad_rx_scan.sv:431$2209">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property ASSERT in ad_rx_scan at ad_rx_scan.sv:432.18-432.34" time="0" type="ASSERT" location="ad_rx_scan.sv:432.18-432.34" id="$assert$ad_rx_scan.sv:432$2210">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property ASSERT in ad_rx_scan at ad_rx_scan.sv:432.35-434.47" time="0" type="ASSERT" location="ad_rx_scan.sv:432.35-434.47" id="$assert$ad_rx_scan.sv:432$2211">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property ASSERT in ad_rx_scan at ad_rx_scan.sv:435.33-435.57" time="0" type="ASSERT" location="ad_rx_scan.sv:435.33-435.57" id="$assert$ad_rx_scan.sv:435$2212">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property ASSERT in ad_rx_scan at ad_rx_scan.sv:436.32-436.58" time="0" type="ASSERT" location="ad_rx_scan.sv:436.32-436.58" id="$assert$ad_rx_scan.sv:436$2213">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property ASSERT in ad_rx_scan at ad_rx_scan.sv:438.35-439.29" time="0" type="ASSERT" location="ad_rx_scan.sv:438.35-439.29" id="$assert$ad_rx_scan.sv:438$2214">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property ASSERT in ad_rx_scan at ad_rx_scan.sv:441.57-442.89" time="0" type="ASSERT" location="ad_rx_scan.sv:441.57-442.89" id="$assert$ad_rx_scan.sv:441$2215">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property ASSERT in ad_rx_scan at ad_rx_scan.sv:441.57-442.89" time="0" type="ASSERT" location="ad_rx_scan.sv:441.57-442.89" id="$assert$ad_rx_scan.sv:441$2217">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property ASSERT in ad_rx_scan at ad_rx_scan.sv:441.57-442.89" time="0" type="ASSERT" location="ad_rx_scan.sv:441.57-442.89" id="$assert$ad_rx_scan.sv:441$2219">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property ASSERT in ad_rx_scan at ad_rx_scan.sv:441.57-442.89" time="0" type="ASSERT" location="ad_rx_scan.sv:441.57-442.89" id="$assert$ad_rx_scan.sv:441$2221">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property ASSERT in ad_rx_scan at ad_rx_scan.sv:442.90-443.89" time="0" type="ASSERT" location="ad_rx_scan.sv:442.90-443.89" id="$assert$ad_rx_scan.sv:442$2216">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property ASSERT in ad_rx_scan at ad_rx_scan.sv:442.90-443.89" time="0" type="ASSERT" location="ad_rx_scan.sv:442.90-443.89" id="$assert$ad_rx_scan.sv:442$2218">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property ASSERT in ad_rx_scan at ad_rx_scan.sv:442.90-443.89" time="0" type="ASSERT" location="ad_rx_scan.sv:442.90-443.89" id="$assert$ad_rx_scan.sv:442$2220">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property ASSERT in ad_rx_scan at ad_rx_scan.sv:442.90-443.89" time="0" type="ASSERT" location="ad_rx_scan.sv:442.90-443.89" id="$assert$ad_rx_scan.sv:442$2222">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property ASSERT in ad_rx_scan at ad_rx_scan.sv:447.28-447.68" time="0" type="ASSERT" location="ad_rx_scan.sv:447.28-447.68" id="$assert$ad_rx_scan.sv:447$2223">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property ASSERT in ad_rx_scan at ad_rx_scan.sv:452.63-455.79" time="0" type="ASSERT" location="ad_rx_scan.sv:452.63-455.79" id="$assert$ad_rx_scan.sv:452$2224">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property ASSERT in ad_rx_scan at ad_rx_scan.sv:452.63-455.79" time="0" type="ASSERT" location="ad_rx_scan.sv:452.63-455.79" id="$assert$ad_rx_scan.sv:452$2225">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property ASSERT in ad_rx_scan at ad_rx_scan.sv:452.63-455.79" time="0" type="ASSERT" location="ad_rx_scan.sv:452.63-455.79" id="$assert$ad_rx_scan.sv:452$2226">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property ASSERT in ad_rx_scan at ad_rx_scan.sv:452.63-455.79" time="0" type="ASSERT" location="ad_rx_scan.sv:452.63-455.79" id="$assert$ad_rx_scan.sv:452$2227">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property ASSERT in ad_rx_scan at ad_rx_scan.sv:452.63-455.79" time="0" type="ASSERT" location="ad_rx_scan.sv:452.63-455.79" id="$assert$ad_rx_scan.sv:452$2228">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property ASSERT in ad_rx_scan at ad_rx_scan.sv:452.63-455.79" time="0" type="ASSERT" location="ad_rx_scan.sv:452.63-455.79" id="$assert$ad_rx_scan.sv:452$2229">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property ASSERT in ad_rx_scan at ad_rx_scan.sv:452.63-455.79" time="0" type="ASSERT" location="ad_rx_scan.sv:452.63-455.79" id="$assert$ad_rx_scan.sv:452$2230">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property ASSERT in ad_rx_scan at ad_rx_scan.sv:452.63-455.79" time="0" type="ASSERT" location="ad_rx_scan.sv:452.63-455.79" id="$assert$ad_rx_scan.sv:452$2231">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property ASSERT in ad_rx_scan at ad_rx_scan.sv:452.63-455.79" time="0" type="ASSERT" location="ad_rx_scan.sv:452.63-455.79" id="$assert$ad_rx_scan.sv:452$2232">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property ASSERT in ad_rx_scan at ad_rx_scan.sv:452.63-455.79" time="0" type="ASSERT" location="ad_rx_scan.sv:452.63-455.79" id="$assert$ad_rx_scan.sv:452$2233">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property ASSERT in ad_rx_scan at ad_rx_scan.sv:452.63-455.79" time="0" type="ASSERT" location="ad_rx_scan.sv:452.63-455.79" id="$assert$ad_rx_scan.sv:452$2234">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property ASSERT in ad_rx_scan at ad_rx_scan.sv:452.63-455.79" time="0" type="ASSERT" location="ad_rx_scan.sv:452.63-455.79" id="$assert$ad_rx_scan.sv:452$2235">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property ASSERT in ad_rx_scan at ad_rx_scan.sv:458.26-458.62" time="0" type="ASSERT" location="ad_rx_scan.sv:458.26-458.62" id="$assert$ad_rx_scan.sv:458$2236">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property ASSERT in ad_rx_scan at ad_rx_scan.sv:460.67-460.110" time="0" type="ASSERT" location="ad_rx_scan.sv:460.67-460.110" id="$assert$ad_rx_scan.sv:460$2237">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property ASSERT in ad_rx_scan at ad_rx_scan.sv:460.67-460.110" time="0" type="ASSERT" location="ad_rx_scan.sv:460.67-460.110" id="$assert$ad_rx_scan.sv:460$2238">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property ASSERT in ad_rx_scan at ad_rx_scan.sv:460.67-460.110" time="0" type="ASSERT" location="ad_rx_scan.sv:460.67-460.110" id="$assert$ad_rx_scan.sv:460$2239">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property ASSERT in ad_rx_scan at ad_rx_scan.sv:460.67-460.110" time="0" type="ASSERT" location="ad_rx_scan.sv:460.67-460.110" id="$assert$ad_rx_scan.sv:460$2240">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property ASSERT in ad_rx_scan at ad_rx_scan.sv:462.17-462.63" time="0" type="ASSERT" location="ad_rx_scan.sv:462.17-462.63" id="$assert$ad_rx_scan.sv:462$2241">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property ASSERT in ad_rx_scan at ad_rx_scan.sv:463.28-463.52" time="0" type="ASSERT" location="ad_rx_scan.sv:463.28-463.52" id="$assert$ad_rx_scan.sv:463$2242">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property ASSERT in ad_rx_scan at ad_rx_scan.sv:465.16-465.32" time="0" type="ASSERT" location="ad_rx_scan.sv:465.16-465.32" id="$assert$ad_rx_scan.sv:465$2243">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property COVER in ad_rx_scan at ad_rx_scan.sv:468.44-469.90" time="0" type="COVER" location="ad_rx_scan.sv:468.44-469.90" id="$cover$ad_rx_scan.sv:468$2244">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property COVER in ad_rx_scan at ad_rx_scan.sv:469.91-470.53" time="0" type="COVER" location="ad_rx_scan.sv:469.91-470.53" id="$cover$ad_rx_scan.sv:469$2245">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property COVER in ad_rx_scan at ad_rx_scan.sv:470.54-471.60" time="0" type="COVER" location="ad_rx_scan.sv:470.54-471.60" id="$cover$ad_rx_scan.sv:470$2246">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property COVER in ad_rx_scan at ad_rx_scan.sv:471.61-472.36" time="0" type="COVER" location="ad_rx_scan.sv:471.61-472.36" id="$cover$ad_rx_scan.sv:471$2247">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property COVER in ad_rx_scan at ad_rx_scan.sv:169.33-177.19|ad_rx_coarse.sv:280.44-281.53" time="0" type="COVER" location="ad_rx_scan.sv:169.33-177.19|ad_rx_coarse.sv:280.44-281.53" id="$flatten\u_coarse.$cover$ad_rx_coarse.sv:280$3299">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property COVER in ad_rx_scan at ad_rx_scan.sv:169.33-177.19|ad_rx_coarse.sv:281.54-282.76" time="0" type="COVER" location="ad_rx_scan.sv:169.33-177.19|ad_rx_coarse.sv:281.54-282.76" id="$flatten\u_coarse.$cover$ad_rx_coarse.sv:281$3300">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property COVER in ad_rx_scan at ad_rx_scan.sv:169.33-177.19|ad_rx_coarse.sv:282.77-283.45" time="0" type="COVER" location="ad_rx_scan.sv:169.33-177.19|ad_rx_coarse.sv:282.77-283.45" id="$flatten\u_coarse.$cover$ad_rx_coarse.sv:282$3301">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property COVER in ad_rx_scan at ad_rx_scan.sv:169.33-177.19|ad_rx_coarse.sv:283.46-284.49" time="0" type="COVER" location="ad_rx_scan.sv:169.33-177.19|ad_rx_coarse.sv:283.46-284.49" id="$flatten\u_coarse.$cover$ad_rx_coarse.sv:283$3302">
+<skipped />
+</testcase>
+<testcase classname="bmc" name="Property COVER in ad_rx_scan at ad_rx_scan.sv:141.13-143.81|ad_rx_cov.sv:100.38-100.67" time="0" type="COVER" location="ad_rx_scan.sv:141.13-143.81|ad_rx_cov.sv:100.38-100.67" id="$flatten\u_cov.$cover$ad_rx_cov.sv:100$3777">
+<skipped />
+</testcase>
+<system-out>SBY  6:40:26 [ad_rx_scan_prv] Removing directory '/home/claude/ad_rx/fpv/ad_rx_scan_prv'.
+SBY  6:40:26 [ad_rx_scan_cvr] Removing directory '/home/claude/ad_rx/fpv/ad_rx_scan_cvr'.
+SBY  6:40:26 [ad_rx_scan_bmc] Removing directory '/home/claude/ad_rx/fpv/ad_rx_scan_bmc'.
+SBY  6:40:26 [ad_rx_scan_bmc] Copy '/home/claude/ad_rx/fpv/../rtl/ad_rx_pkg.sv' to '/home/claude/ad_rx/fpv/ad_rx_scan_bmc/src/ad_rx_pkg.sv'.
+SBY  6:40:26 [ad_rx_scan_bmc] Copy '/home/claude/ad_rx/fpv/../rtl/ad_rx_coarse.sv' to '/home/claude/ad_rx/fpv/ad_rx_scan_bmc/src/ad_rx_coarse.sv'.
+SBY  6:40:26 [ad_rx_scan_bmc] Copy '/home/claude/ad_rx/fpv/../rtl/ad_rx_cov.sv' to '/home/claude/ad_rx/fpv/ad_rx_scan_bmc/src/ad_rx_cov.sv'.
+SBY  6:40:26 [ad_rx_scan_bmc] Copy '/home/claude/ad_rx/fpv/../rtl/ad_rx_hiz.sv' to '/home/claude/ad_rx/fpv/ad_rx_scan_bmc/src/ad_rx_hiz.sv'.
+SBY  6:40:26 [ad_rx_scan_bmc] Copy '/home/claude/ad_rx/fpv/../rtl/ad_rx_i2f.sv' to '/home/claude/ad_rx/fpv/ad_rx_scan_bmc/src/ad_rx_i2f.sv'.
+SBY  6:40:26 [ad_rx_scan_bmc] Copy '/home/claude/ad_rx/fpv/../rtl/ad_rx_fadd.sv' to '/home/claude/ad_rx/fpv/ad_rx_scan_bmc/src/ad_rx_fadd.sv'.
+SBY  6:40:26 [ad_rx_scan_bmc] Copy '/home/claude/ad_rx/fpv/../rtl/ad_rx_fmul.sv' to '/home/claude/ad_rx/fpv/ad_rx_scan_bmc/src/ad_rx_fmul.sv'.
+SBY  6:40:26 [ad_rx_scan_bmc] Copy '/home/claude/ad_rx/fpv/../rtl/ad_rx_scan.sv' to '/home/claude/ad_rx/fpv/ad_rx_scan_bmc/src/ad_rx_scan.sv'.
+SBY  6:40:26 [ad_rx_scan_bmc] engine_0: smtbmc cvc5
+SBY  6:40:28 [ad_rx_scan_bmc] base: starting process &quot;cd ad_rx_scan_bmc/src; yosys -ql ../model/design.log ../model/design.ys&quot;
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \pyv with list of registers. See ad_rx_scan.sv:214, ad_rx_scan.sv:212
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \pxv with list of registers. See ad_rx_scan.sv:213, ad_rx_scan.sv:211
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \el with list of registers. See ad_rx_scan.sv:215, ad_rx_scan.sv:205
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \eqv with list of registers. See ad_rx_scan.sv:205, ad_rx_scan.sv:202
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \ebv with list of registers. See ad_rx_scan.sv:204, ad_rx_scan.sv:201
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \eav with list of registers. See ad_rx_scan.sv:203, ad_rx_scan.sv:200
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \f_ehere with list of registers. See ad_rx_coarse.sv:227
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \f_eref with list of registers. See ad_rx_coarse.sv:226
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \erow with list of registers. See ad_rx_coarse.sv:132
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \ecur with list of registers. See ad_rx_coarse.sv:132
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \er with list of registers. See ad_rx_coarse.sv:131
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \lm with list of registers. See ad_rx_coarse.sv:131
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \b8 with list of registers. See ad_rx_coarse.sv:131
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \a8 with list of registers. See ad_rx_coarse.sv:131
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \dmin with list of registers. See ad_rx_coarse.sv:101, ad_rx_coarse.sv:99
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \dmax with list of registers. See ad_rx_coarse.sv:100, ad_rx_coarse.sv:98
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \s7b with list of registers. See ad_rx_coarse.sv:98, ad_rx_coarse.sv:97
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \s7a with list of registers. See ad_rx_coarse.sv:98, ad_rx_coarse.sv:96
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \lm with list of registers. See ad_rx_cov.sv:56
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \q with list of registers. See ad_rx_cov.sv:44
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \p with list of registers. See ad_rx_cov.sv:43
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \eb with list of registers. See ad_rx_cov.sv:43, ad_rx_cov.sv:42
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \ea with list of registers. See ad_rx_cov.sv:43, ad_rx_cov.sv:41
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Wire $paramod\ad_rx_coarse\SKIP=1'1.\f_dy [2] is used but has no driver.
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Wire $paramod\ad_rx_coarse\SKIP=1'1.\f_dy [1] is used but has no driver.
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Wire $paramod\ad_rx_coarse\SKIP=1'1.\f_dy [0] is used but has no driver.
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Wire $paramod\ad_rx_coarse\SKIP=1'1.\f_dx [2] is used but has no driver.
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Wire $paramod\ad_rx_coarse\SKIP=1'1.\f_dx [1] is used but has no driver.
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Wire $paramod\ad_rx_coarse\SKIP=1'1.\f_dx [0] is used but has no driver.
+SBY  6:40:31 [ad_rx_scan_bmc] base: Warning: Selection &quot;ad_rx_i2f&quot; did not match any module.
+SBY  6:40:31 [ad_rx_scan_bmc] base: finished (returncode=0)
+SBY  6:40:31 [ad_rx_scan_bmc] prep: starting process &quot;cd ad_rx_scan_bmc/model; yosys -ql design_prep.log design_prep.ys&quot;
+SBY  6:40:32 [ad_rx_scan_bmc] prep: Warning: Wire ad_rx_scan.\u_coarse.f_dy [2] is used but has no driver.
+SBY  6:40:32 [ad_rx_scan_bmc] prep: Warning: Wire ad_rx_scan.\u_coarse.f_dy [1] is used but has no driver.
+SBY  6:40:32 [ad_rx_scan_bmc] prep: Warning: Wire ad_rx_scan.\u_coarse.f_dy [0] is used but has no driver.
+SBY  6:40:32 [ad_rx_scan_bmc] prep: Warning: Wire ad_rx_scan.\u_coarse.f_dx [2] is used but has no driver.
+SBY  6:40:32 [ad_rx_scan_bmc] prep: Warning: Wire ad_rx_scan.\u_coarse.f_dx [1] is used but has no driver.
+SBY  6:40:32 [ad_rx_scan_bmc] prep: Warning: Wire ad_rx_scan.\u_coarse.f_dx [0] is used but has no driver.
+SBY  6:40:33 [ad_rx_scan_bmc] prep: finished (returncode=0)
+SBY  6:50:27 [ad_rx_scan_bmc] Reached TIMEOUT (600 seconds). Terminating all subprocesses.
+SBY  6:50:27 [ad_rx_scan_bmc] summary: Elapsed clock time [H:MM:SS (secs)]: 0:10:01 (601)
+SBY  6:50:27 [ad_rx_scan_bmc] summary: Elapsed process time [H:MM:SS (secs)]: 0:00:12 (12)
+SBY  6:50:27 [ad_rx_scan_bmc] summary: engine_0 (smtbmc cvc5) did not return a status
+SBY  6:50:27 [ad_rx_scan_bmc] summary: engine_0 did not produce any traces
+SBY  6:50:27 [ad_rx_scan_bmc] DONE (TIMEOUT, rc=8)
+</system-out>
+<system-err>
+</system-err>
+</testsuite>
+</testsuites>

@@ -1,0 +1,18 @@
+[tasks]
+prove
+
+[options]
+mode prove
+depth 32
+
+[engines]
+smtbmc yices
+
+[script]
+read -formal ad_rx_pkg.sv ad_rx_fdiv.sv ad_rx_fdiv_fv.sv
+prep -top ad_rx_fdiv_fv
+
+[files]
+/home/claude/ad_rx/rtl/ad_rx_pkg.sv
+/home/claude/ad_rx/rtl/ad_rx_fdiv.sv
+ad_rx_fdiv_fv.sv

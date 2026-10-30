@@ -1,0 +1,1 @@
+f2un: PROVEN (bmc 1: PASS, induction 1: PROVEN) 4.9s

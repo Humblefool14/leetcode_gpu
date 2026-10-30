@@ -1,0 +1,25 @@
+[tasks]
+bmc
+
+[options]
+mode bmc
+depth 16
+
+[engines]
+smtbmc yices
+
+[script]
+read -formal ad_rx_pkg.sv ad_rx_fadd.sv ad_rx_fmul.sv ad_rx_i2f.sv ad_rx_f2un.sv ad_rx_cov.sv ad_rx_coarse.sv ad_rx_hiz.sv ad_rx_scan.sv ad_rx_scan_fv.sv
+prep -top ad_rx_scan_fv
+
+[files]
+/home/claude/ad_rx/rtl/ad_rx_pkg.sv
+/home/claude/ad_rx/rtl/ad_rx_fadd.sv
+/home/claude/ad_rx/rtl/ad_rx_fmul.sv
+/home/claude/ad_rx/rtl/ad_rx_i2f.sv
+/home/claude/ad_rx/rtl/ad_rx_f2un.sv
+/home/claude/ad_rx/rtl/ad_rx_cov.sv
+/home/claude/ad_rx/rtl/ad_rx_coarse.sv
+/home/claude/ad_rx/rtl/ad_rx_hiz.sv
+/home/claude/ad_rx/rtl/ad_rx_scan.sv
+ad_rx_scan_fv.sv

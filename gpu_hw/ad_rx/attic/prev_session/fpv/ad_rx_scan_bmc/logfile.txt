@@ -1,0 +1,58 @@
+SBY  6:40:26 [ad_rx_scan_prv] Removing directory '/home/claude/ad_rx/fpv/ad_rx_scan_prv'.
+SBY  6:40:26 [ad_rx_scan_cvr] Removing directory '/home/claude/ad_rx/fpv/ad_rx_scan_cvr'.
+SBY  6:40:26 [ad_rx_scan_bmc] Removing directory '/home/claude/ad_rx/fpv/ad_rx_scan_bmc'.
+SBY  6:40:26 [ad_rx_scan_bmc] Copy '/home/claude/ad_rx/fpv/../rtl/ad_rx_pkg.sv' to '/home/claude/ad_rx/fpv/ad_rx_scan_bmc/src/ad_rx_pkg.sv'.
+SBY  6:40:26 [ad_rx_scan_bmc] Copy '/home/claude/ad_rx/fpv/../rtl/ad_rx_coarse.sv' to '/home/claude/ad_rx/fpv/ad_rx_scan_bmc/src/ad_rx_coarse.sv'.
+SBY  6:40:26 [ad_rx_scan_bmc] Copy '/home/claude/ad_rx/fpv/../rtl/ad_rx_cov.sv' to '/home/claude/ad_rx/fpv/ad_rx_scan_bmc/src/ad_rx_cov.sv'.
+SBY  6:40:26 [ad_rx_scan_bmc] Copy '/home/claude/ad_rx/fpv/../rtl/ad_rx_hiz.sv' to '/home/claude/ad_rx/fpv/ad_rx_scan_bmc/src/ad_rx_hiz.sv'.
+SBY  6:40:26 [ad_rx_scan_bmc] Copy '/home/claude/ad_rx/fpv/../rtl/ad_rx_i2f.sv' to '/home/claude/ad_rx/fpv/ad_rx_scan_bmc/src/ad_rx_i2f.sv'.
+SBY  6:40:26 [ad_rx_scan_bmc] Copy '/home/claude/ad_rx/fpv/../rtl/ad_rx_fadd.sv' to '/home/claude/ad_rx/fpv/ad_rx_scan_bmc/src/ad_rx_fadd.sv'.
+SBY  6:40:26 [ad_rx_scan_bmc] Copy '/home/claude/ad_rx/fpv/../rtl/ad_rx_fmul.sv' to '/home/claude/ad_rx/fpv/ad_rx_scan_bmc/src/ad_rx_fmul.sv'.
+SBY  6:40:26 [ad_rx_scan_bmc] Copy '/home/claude/ad_rx/fpv/../rtl/ad_rx_scan.sv' to '/home/claude/ad_rx/fpv/ad_rx_scan_bmc/src/ad_rx_scan.sv'.
+SBY  6:40:26 [ad_rx_scan_bmc] engine_0: smtbmc cvc5
+SBY  6:40:28 [ad_rx_scan_bmc] base: starting process "cd ad_rx_scan_bmc/src; yosys -ql ../model/design.log ../model/design.ys"
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \pyv with list of registers. See ad_rx_scan.sv:214, ad_rx_scan.sv:212
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \pxv with list of registers. See ad_rx_scan.sv:213, ad_rx_scan.sv:211
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \el with list of registers. See ad_rx_scan.sv:215, ad_rx_scan.sv:205
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \eqv with list of registers. See ad_rx_scan.sv:205, ad_rx_scan.sv:202
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \ebv with list of registers. See ad_rx_scan.sv:204, ad_rx_scan.sv:201
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \eav with list of registers. See ad_rx_scan.sv:203, ad_rx_scan.sv:200
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \f_ehere with list of registers. See ad_rx_coarse.sv:227
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \f_eref with list of registers. See ad_rx_coarse.sv:226
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \erow with list of registers. See ad_rx_coarse.sv:132
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \ecur with list of registers. See ad_rx_coarse.sv:132
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \er with list of registers. See ad_rx_coarse.sv:131
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \lm with list of registers. See ad_rx_coarse.sv:131
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \b8 with list of registers. See ad_rx_coarse.sv:131
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \a8 with list of registers. See ad_rx_coarse.sv:131
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \dmin with list of registers. See ad_rx_coarse.sv:101, ad_rx_coarse.sv:99
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \dmax with list of registers. See ad_rx_coarse.sv:100, ad_rx_coarse.sv:98
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \s7b with list of registers. See ad_rx_coarse.sv:98, ad_rx_coarse.sv:97
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \s7a with list of registers. See ad_rx_coarse.sv:98, ad_rx_coarse.sv:96
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \lm with list of registers. See ad_rx_cov.sv:56
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \q with list of registers. See ad_rx_cov.sv:44
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \p with list of registers. See ad_rx_cov.sv:43
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \eb with list of registers. See ad_rx_cov.sv:43, ad_rx_cov.sv:42
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Replacing memory \ea with list of registers. See ad_rx_cov.sv:43, ad_rx_cov.sv:41
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Wire $paramod\ad_rx_coarse\SKIP=1'1.\f_dy [2] is used but has no driver.
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Wire $paramod\ad_rx_coarse\SKIP=1'1.\f_dy [1] is used but has no driver.
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Wire $paramod\ad_rx_coarse\SKIP=1'1.\f_dy [0] is used but has no driver.
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Wire $paramod\ad_rx_coarse\SKIP=1'1.\f_dx [2] is used but has no driver.
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Wire $paramod\ad_rx_coarse\SKIP=1'1.\f_dx [1] is used but has no driver.
+SBY  6:40:29 [ad_rx_scan_bmc] base: Warning: Wire $paramod\ad_rx_coarse\SKIP=1'1.\f_dx [0] is used but has no driver.
+SBY  6:40:31 [ad_rx_scan_bmc] base: Warning: Selection "ad_rx_i2f" did not match any module.
+SBY  6:40:31 [ad_rx_scan_bmc] base: finished (returncode=0)
+SBY  6:40:31 [ad_rx_scan_bmc] prep: starting process "cd ad_rx_scan_bmc/model; yosys -ql design_prep.log design_prep.ys"
+SBY  6:40:32 [ad_rx_scan_bmc] prep: Warning: Wire ad_rx_scan.\u_coarse.f_dy [2] is used but has no driver.
+SBY  6:40:32 [ad_rx_scan_bmc] prep: Warning: Wire ad_rx_scan.\u_coarse.f_dy [1] is used but has no driver.
+SBY  6:40:32 [ad_rx_scan_bmc] prep: Warning: Wire ad_rx_scan.\u_coarse.f_dy [0] is used but has no driver.
+SBY  6:40:32 [ad_rx_scan_bmc] prep: Warning: Wire ad_rx_scan.\u_coarse.f_dx [2] is used but has no driver.
+SBY  6:40:32 [ad_rx_scan_bmc] prep: Warning: Wire ad_rx_scan.\u_coarse.f_dx [1] is used but has no driver.
+SBY  6:40:32 [ad_rx_scan_bmc] prep: Warning: Wire ad_rx_scan.\u_coarse.f_dx [0] is used but has no driver.
+SBY  6:40:33 [ad_rx_scan_bmc] prep: finished (returncode=0)
+SBY  6:50:27 [ad_rx_scan_bmc] Reached TIMEOUT (600 seconds). Terminating all subprocesses.
+SBY  6:50:27 [ad_rx_scan_bmc] summary: Elapsed clock time [H:MM:SS (secs)]: 0:10:01 (601)
+SBY  6:50:27 [ad_rx_scan_bmc] summary: Elapsed process time [H:MM:SS (secs)]: 0:00:12 (12)
+SBY  6:50:27 [ad_rx_scan_bmc] summary: engine_0 (smtbmc cvc5) did not return a status
+SBY  6:50:27 [ad_rx_scan_bmc] summary: engine_0 did not produce any traces
+SBY  6:50:27 [ad_rx_scan_bmc] DONE (TIMEOUT, rc=8)

@@ -1,0 +1,1 @@
+coarse: BOUNDED (bmc: steps 0-12 clean, step 13 unfinished at the 600s limit (asked 20)) 600.4s

@@ -1,0 +1,4 @@
+Elapsed clock time [H:MM:SS (secs)]: 0:10:01 (601)
+Elapsed process time [H:MM:SS (secs)]: 0:00:12 (12)
+engine_0 (smtbmc cvc5) did not return a status
+engine_0 did not produce any traces
