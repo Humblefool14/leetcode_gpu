@@ -1,0 +1,34 @@
+[tasks]
+bmc all bm
+prove all pv
+bmc_id id bm
+prove_id id pv
+bmc_comm comm bm
+prove_comm comm pv
+bmc_den den bm
+prove_den den pv
+
+[options]
+bm: mode bmc
+bm: depth 1
+pv: mode prove
+
+[engines]
+bm: abc bmc3
+pv: abc pdr
+
+[script]
+all: read -formal -D P_ID -D P_COMM -D P_DEN fv_ad_su_pk_half.sv ad_su_pk_half.v ad_su_hrnd.v ad_su_hsat.v ad_su_hcmp.v ad_su_hminmax.v
+id: read -formal -D P_ID fv_ad_su_pk_half.sv ad_su_pk_half.v ad_su_hrnd.v ad_su_hsat.v ad_su_hcmp.v ad_su_hminmax.v
+comm: read -formal -D P_COMM fv_ad_su_pk_half.sv ad_su_pk_half.v ad_su_hrnd.v ad_su_hsat.v ad_su_hcmp.v ad_su_hminmax.v
+den: read -formal -D P_DEN fv_ad_su_pk_half.sv ad_su_pk_half.v ad_su_hrnd.v ad_su_hsat.v ad_su_hcmp.v ad_su_hminmax.v
+prep -top fv_ad_su_pk_half
+
+[files]
+fv_ad_su_pk_half.sv
+../../rtl/su/ad_su_pk_half.v
+../../rtl/su/pk/ad_su_hrnd.v
+../../rtl/su/pk/ad_su_hsat.v
+../../rtl/su/pk/ad_su_hcmp.v
+../../rtl/su/pk/ad_su_hminmax.v
+../../rtl/include/ad_su_uop.vh

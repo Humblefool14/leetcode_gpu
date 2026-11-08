@@ -1,0 +1,32 @@
+[tasks]
+bmc timing bm
+prove timing pv
+bmc_hsel hsel bm
+prove_hsel hsel pv
+
+[options]
+bm: mode bmc
+timing: depth 10
+hsel: depth 8
+pv: mode prove
+
+[engines]
+bm: abc bmc3
+pv: abc pdr
+
+[script]
+timing: read -formal -D TIMING -D AD_SU_PK_STUB fv_ad_su_pk.sv ad_su_pk.v ad_su_pk_half.v ad_su_h2f.v ad_su_hrnd.v ad_su_hsat.v ad_su_hcmp.v ad_su_hminmax.v
+hsel: read -formal -D HSEL fv_ad_su_pk.sv ad_su_pk.v ad_su_pk_half.v ad_su_h2f.v ad_su_hrnd.v ad_su_hsat.v ad_su_hcmp.v ad_su_hminmax.v
+hsel: chparam -set NPHYS 4 fv_ad_su_pk
+prep -top fv_ad_su_pk
+
+[files]
+fv_ad_su_pk.sv
+../../rtl/su/ad_su_pk.v
+../../rtl/su/ad_su_pk_half.v
+../../rtl/su/pk/ad_su_h2f.v
+../../rtl/su/pk/ad_su_hrnd.v
+../../rtl/su/pk/ad_su_hsat.v
+../../rtl/su/pk/ad_su_hcmp.v
+../../rtl/su/pk/ad_su_hminmax.v
+../../rtl/include/ad_su_uop.vh

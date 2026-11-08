@@ -1,0 +1,21 @@
+[tasks]
+bmc
+prove
+
+[options]
+bmc: mode bmc
+bmc: depth 2
+prove: mode prove
+
+[engines]
+bmc: abc bmc3
+prove: abc pdr
+
+[script]
+read -formal -I. ad_ctl_exec_op.v fv_ad_ctl_exec_op.sv
+prep -top fv_ad_ctl_exec_op
+
+[files]
+../../rtl/include/ad_su_uop.vh
+../../rtl/su/ctl/ad_ctl_exec_op.v
+fv_ad_ctl_exec_op.sv

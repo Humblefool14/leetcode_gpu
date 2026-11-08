@@ -1,0 +1,29 @@
+[tasks]
+bmc
+prove
+
+[options]
+bmc: mode bmc
+bmc: depth 24
+prove: mode prove
+prove: depth 4
+
+[engines]
+bmc: abc bmc3
+prove: smtbmc z3
+
+[script]
+read -formal -I. ad_lsu_coalesce.v ad_lsu_scatter.v ad_lsu_wbe.v ad_su_lsu.v
+read -formal -I. ad_amb_client_props.sv fv_ad_su_lsu.sv
+prep -top fv_ad_su_lsu
+techmap -map +/techmap.v t:$shiftx
+setundef -zero
+
+[files]
+../../rtl/include/ad_su_uop.vh
+../../rtl/su/mem/ad_lsu_coalesce.v
+../../rtl/su/mem/ad_lsu_scatter.v
+../../rtl/su/mem/ad_lsu_wbe.v
+../../rtl/su/ad_su_lsu.v
+../common/ad_amb_client_props.sv
+fv_ad_su_lsu.sv

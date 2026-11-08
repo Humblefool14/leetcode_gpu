@@ -1,0 +1,22 @@
+[tasks]
+bmc
+prove
+
+[options]
+bmc: mode bmc
+bmc: depth 1
+prove: mode prove
+
+[engines]
+bmc: smtbmc z3
+prove: abc pdr
+
+[script]
+read -formal -I. ad_su_alu_lane.v
+read -formal fv_ad_core_alu_lane.sv
+prep -top fv_ad_core_alu_lane
+
+[files]
+../../rtl/su/core/ad_su_alu_lane.v
+../../rtl/include/ad_su_uop.vh
+fv_ad_core_alu_lane.sv

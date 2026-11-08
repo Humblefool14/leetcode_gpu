@@ -1,0 +1,21 @@
+[tasks]
+bmc
+prove
+
+[options]
+bmc: mode bmc
+bmc: depth 30
+prove: mode prove
+
+[engines]
+bmc: abc bmc3
+prove: abc pdr
+
+[script]
+read -formal ad_su_exp_drain.v
+read -formal fv_ad_su_exp_drain.sv
+prep -top fv_ad_su_exp_drain
+
+[files]
+../../rtl/su/ad_su_exp_drain.v
+fv_ad_su_exp_drain.sv

@@ -1,0 +1,21 @@
+[tasks]
+bmc
+prove
+
+[options]
+bmc: mode bmc
+bmc: depth 1
+prove: mode prove
+
+[engines]
+bmc: smtbmc z3
+prove: abc pdr
+
+[script]
+read -formal -I. ad_su_fwd_sel.v
+read -formal -I. fv_ad_core_fwd_sel.sv
+prep -top fv_ad_core_fwd_sel
+
+[files]
+../../rtl/su/core/ad_su_fwd_sel.v
+fv_ad_core_fwd_sel.sv

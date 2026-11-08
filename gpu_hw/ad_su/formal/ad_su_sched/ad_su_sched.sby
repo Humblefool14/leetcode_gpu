@@ -1,0 +1,36 @@
+[tasks]
+bmc
+prove
+bmc_rr
+prove_rr
+
+[options]
+bmc: mode bmc
+bmc: depth 20
+bmc_rr: mode bmc
+bmc_rr: depth 20
+prove: mode prove
+prove_rr: mode prove
+
+[engines]
+bmc: abc bmc3
+bmc_rr: abc bmc3
+prove: abc pdr
+prove_rr: abc pdr
+
+[script]
+read -formal -DAD_SCHED_FV -I. ad_ctl_slot.v ad_ctl_wsel.v ad_su_sched.v
+read -formal fv_ad_su_sched.sv
+bmc: chparam -set GTO 1 fv_ad_su_sched
+prove: chparam -set GTO 1 fv_ad_su_sched
+bmc_rr: chparam -set GTO 0 fv_ad_su_sched
+prove_rr: chparam -set GTO 0 fv_ad_su_sched
+prep -top fv_ad_su_sched
+
+[files]
+../../rtl/include/ad_su_uop.vh
+../../rtl/include/ad_su_state.vh
+../../rtl/su/ctl/ad_ctl_slot.v
+../../rtl/su/ctl/ad_ctl_wsel.v
+../../rtl/su/ad_su_sched.v
+fv_ad_su_sched.sv

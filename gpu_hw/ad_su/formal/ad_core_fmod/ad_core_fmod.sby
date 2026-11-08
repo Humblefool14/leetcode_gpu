@@ -1,0 +1,22 @@
+[tasks]
+bmc
+prove
+
+[options]
+bmc: mode bmc
+bmc: depth 1
+prove: mode prove
+
+[engines]
+bmc: smtbmc z3
+prove: abc pdr
+
+[script]
+read -formal -I. ad_su_fmod.v
+read -formal -I. fv_ad_core_fmod.sv
+prep -top fv_ad_core_fmod
+
+[files]
+../../rtl/su/core/ad_su_fmod.v
+../../rtl/include/ad_su_uop.vh
+fv_ad_core_fmod.sv

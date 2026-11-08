@@ -1,0 +1,34 @@
+[tasks]
+bmc
+prove
+bmc4
+
+[options]
+bmc: mode bmc
+bmc: depth 24
+bmc4: mode bmc
+bmc4: depth 20
+prove: mode prove
+prove: depth 3
+
+[engines]
+bmc: abc bmc3
+bmc4: abc bmc3
+prove: smtbmc z3
+
+[script]
+read -formal -I. ad_su_scrub.v ad_mem_tdpram.v fv_atom_abstract.sv ad_su_lds.v
+bmc: read -formal fv_ad_su_lds.sv
+prove: read -formal fv_ad_su_lds.sv
+bmc4: read -formal -DNP=4 fv_ad_su_lds.sv
+prep -top fv_ad_su_lds
+techmap -map +/techmap.v t:$shiftx
+setundef -zero
+
+[files]
+../../rtl/include/ad_su_uop.vh
+../../rtl/su/ad_su_scrub.v
+../../rtl/su/mem/ad_mem_tdpram.v
+fv_atom_abstract.sv
+../../rtl/su/ad_su_lds.v
+fv_ad_su_lds.sv

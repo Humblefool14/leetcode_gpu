@@ -1,0 +1,22 @@
+[tasks]
+bmc
+prove
+
+[options]
+bmc: mode bmc
+bmc: depth 2
+prove: mode prove
+
+[engines]
+bmc: abc bmc3
+prove: abc pdr
+
+[script]
+read -formal ad_lsu_scatter.v fv_ad_mem_lsu_scatter.sv
+prep -top fv_ad_mem_lsu_scatter
+techmap -map +/techmap.v t:$shiftx
+setundef -zero
+
+[files]
+../../rtl/su/mem/ad_lsu_scatter.v
+fv_ad_mem_lsu_scatter.sv

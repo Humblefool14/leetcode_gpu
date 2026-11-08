@@ -1,0 +1,21 @@
+[tasks]
+bmc
+prove
+
+[options]
+bmc: mode bmc
+bmc: depth 12
+prove: mode prove
+
+[engines]
+bmc: abc bmc3
+prove: abc pdr
+
+[script]
+read -formal ad_lane_ctl.v
+read -formal fv_ad_lane_ctl.sv
+prep -top fv_ad_lane_ctl
+
+[files]
+../../rtl/su/lane/ad_lane_ctl.v
+fv_ad_lane_ctl.sv

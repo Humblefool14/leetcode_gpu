@@ -1,0 +1,32 @@
+[tasks]
+bmc
+prove_open
+
+[options]
+bmc: mode bmc
+bmc: depth 12
+prove_open: mode prove
+
+[engines]
+bmc: abc bmc3
+prove_open: abc pdr
+
+[script]
+read -formal ad_lane_fsub_stub.v ad_lane_qd.v ad_lane_srcl.v ad_lane_stage.v ad_lane_sub.v ad_lane_ctl.v ad_su_lane.v
+read -formal fv_ad_su_lane.sv
+prep -top fv_ad_su_lane
+flatten
+techmap t:$shiftx
+opt_clean
+setundef -zero
+
+[files]
+../../rtl/include/ad_su_uop.vh
+ad_lane_fsub_stub.v
+../../rtl/su/lane/ad_lane_qd.v
+../../rtl/su/lane/ad_lane_srcl.v
+../../rtl/su/lane/ad_lane_stage.v
+../../rtl/su/lane/ad_lane_sub.v
+../../rtl/su/lane/ad_lane_ctl.v
+../../rtl/su/ad_su_lane.v
+fv_ad_su_lane.sv

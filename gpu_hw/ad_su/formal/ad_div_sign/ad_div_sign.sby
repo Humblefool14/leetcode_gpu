@@ -1,0 +1,21 @@
+[tasks]
+bmc
+prove
+
+[options]
+bmc: mode bmc
+bmc: depth 2
+prove: mode prove
+
+[engines]
+bmc: smtbmc z3
+prove: abc pdr
+
+[script]
+read -formal ad_div_sign.v
+read -formal fv_ad_div_sign.sv
+prep -top fv_ad_div_sign
+
+[files]
+../../rtl/su/div/ad_div_sign.v
+fv_ad_div_sign.sv

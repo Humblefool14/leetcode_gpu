@@ -1,0 +1,95 @@
+# ad_su_xu
+
+RTL: `rtl/gpu/su/ad_su_xu.v`.  Parent: ad_su.  Implemented in: p008.
+
+## 1. Purpose and place
+
+The SU's shared transcendental unit: rcp, rsq (table + one Newton step), exp2, log2, sin, cos (range reduction + polynomial) and fsqrt; one lane at a time, results as long beats.
+
+## 2. Parameters
+
+| Name | Default | Meaning |
+| --- | --- | --- |
+| `NPHYS` | `8` | Physical lanes: 4, 8, 16 or 32 (a warp is 32 lanes, one instruction takes 32/NPHYS cycles). |
+| `NWARPS` | `4` | Resident warps (slots): 2, 4 or 8. |
+| `WARP_W` | `2` | log2(NWARPS). |
+| `GRP_W` | `2` | log2(32/NPHYS): the lane-group number of a warp (0 for NPHYS 32 is given as 1 bit). |
+| `SBE_W` | `2` | log2(SB_ENTRIES); the value of all ones above the entries is "no entry" (an entry index is SBE_W+1 bits). |
+| `UOP_W` | `104` | Width of the decoded instruction (= AD_UOP_W of include/ad_su_uop.vh). |
+
+## 3. Ports
+
+Clock/reset domain: clk (gclk) unless the row says otherwise.  Resets are synchronous and active low.
+
+| Name | Dir | Width | Meaning, handshake and timing |
+| --- | --- | --- | --- |
+| `clk` | in | 1 | Clock (gclk). |
+| `rst_n` | in | 1 | Synchronous reset, active low. |
+| **Issued instruction, one lane group per cycle (from ad_su_opd, shared by all units)** | | | |
+| `x_valid` | in | 1 | A lane group of an instruction; this unit acts only when the uop's unit field is its own. |
+| `x_warp` | in | WARP_W | Warp slot. |
+| `x_grp` | in | GRP_W | Lane group (lanes x_grp*NPHYS .. +NPHYS-1). |
+| `x_last` | in | 1 | Last group of the instruction. |
+| `x_sbe` | in | (SBE_W)+1 | Scoreboard entry of the instruction (all ones = none). |
+| `x_pc` | in | 16 | Instruction index (branches, faults). |
+| `x_uop` | in | UOP_W | The decoded instruction (include/ad_su_uop.vh). |
+| `x_a` | in | NPHYS*32 | Operand rs1 per lane (modifiers applied). |
+| `x_b` | in | NPHYS*32 | Operand rs2. |
+| `x_c` | in | NPHYS*32 | Operand rs3 (or rs1+1 for the PAIR instructions). |
+| `x_mask` | in | 2*NPHYS | [NPHYS-1:0] EXEC lanes of the group, [2*NPHYS-1:NPHYS] side-effect lanes (EXEC & coverage & ~KILLED). |
+| `x_info` | in | 32 | x_info [15:0] fragment sequence number, [17:16] warp kind (0 vertex, 1 fragment, 2 compute), [18] front facing, [31:19] 0. |
+| `x_ready` | out | 1 | This unit can take a group of its own this cycle (ad_su_opd waits otherwise). |
+| **Long result to ad_su_wb (any time; wb may refuse with l_ready = 0)** | | | |
+| `l_valid` | out | 1 | A result beat: one register of one lane group, or a completion without data. |
+| `l_ready` | in | 1 | Taken by ad_su_wb. |
+| `l_warp` | out | WARP_W | Warp. |
+| `l_grp` | out | GRP_W | Group. |
+| `l_rd` | out | 7 | Register written (texture: rd..rd+3 one beat each). |
+| `l_data` | out | NPHYS*32 | Data. |
+| `l_lanes` | out | NPHYS | Lanes written. |
+| `l_wr` | out | 1 | 1: write the register; 0: completion only (stores, atomics without rd). |
+| `l_last` | out | 1 | Last beat of the instruction: release its scoreboard entry and counter. |
+| `l_sbe` | out | (SBE_W)+1 | The scoreboard entry (from x_sbe). |
+| `l_cls` | out | 3 | Class (m, t or x) whose counter falls with l_last. |
+
+26 ports.
+
+## 4. Behaviour
+
+Takes a whole instruction (all groups) into an input buffer, computes lane by lane (32 + 8 cycles per instruction at one lane per cycle), returns one beat per group, l_last on the last.  rcp/rsq 1 ulp, others about 2 ulp (design §3.1).
+
+## 5. State machine
+
+IDLE → LOAD (groups) → COMPUTE (lane loop) → RETURN (beats) → IDLE.
+
+## 6. Latency and throughput
+
+One instruction per about 40 cycles; x_ready 0 while busy (other warps' xu instructions wait at the operand stage).
+
+## 7. Corner cases and errors
+
+- Lanes outside EXEC are skipped and not written.
+
+## 8. What the TB checks
+
+`sim/tb/ad_su_xu_tb.v` prints, in this order:
+
+- `PASS ad_su_xu.funcs` — each function over a sweep against the C model's error bounds
+- `PASS ad_su_xu.beats` — beats per group and l_last; back-pressure from l_ready
+- `PASS ad_su_xu` at the end.
+
+## 9. References
+
+design §3.4.2 (class x), §3.5 (超越の unit), §3.1 (precision).
+
+## 10. Status
+
+Implemented in WS288 p008 part 2 (branch p1-su2; TB `sim/tb/ad_su_xu_tb.v` on the vectors of `tools/gsi1fp.py --xu-vec`, bit for bit with the model and within the error bounds against the real functions).  Differences from §4-§6: v0 takes one lane group at a time (x_ready 0 while it computes) and computes each EXEC lane in a sequential engine with integer algorithms that tools/gsi1fp.py `xu()` follows step for step: rcp = 2^50 / m by a 28-step restoring division and fsqrt = isqrt bit by bit (both correctly rounded), rsq = 2^57 / isqrt(m << 34) (30 + 29 steps, ≤ 1 ulp), exp2 = the product of 2^(2^-i) over the fraction bits (30 multiplies, ≤ 0.5 ulp measured), log2 by 30 squarings (absolute error about 2^-22), sin/cos by the turns x/(2π) in Q0.40, the quadrant and 26 CORDIC rotations (absolute error about 2^-24 on [−π, π]; |x| < 2^-12 gives x and 1.0).  About 30-60 cycles per lane instead of one lane per cycle: an instruction of 32 lanes takes about 1000-2000 cycles (a pipelined engine is a later optimisation).  Constants in include/ad_su_xu_tab.vh (generated by `tools/gsi1fp.py --xu-tab`).
+
+2026-11-08 (rebuild in rtl/su/): `rtl/su/ad_su_xu.v` with leaves in `rtl/su/xu/`: `ad_xu_ctl` (group sequencer IDLE → RUN → RET), `ad_xu_engine` (the per-lane FSM following `tools/gsi1fp.py` `xu()` step for step), `ad_xu_special` (flush, special operands), `ad_xu_divider` (restoring division of r0·2^steps, on `rtl/su/div/ad_div_rstep.v`), `ad_xu_isqrt` (bit-by-bit square root, 30 steps), `ad_xu_exp_pre` (Q8.30 operand), `ad_xu_mulstep` (the exp2 multiply and log2 squaring), `ad_xu_sincos_pre` (turns, quadrant), `ad_xu_cordic` (one rotation), `ad_xu_normround` (norm_round).  Constants from `include/ad_su_xu_tab.vh` (included in `ad_xu_engine` and `ad_xu_sincos_pre`).  Cycles per EXEC lane, start to done: special operands 1, sin/cos 28, rcp 31, exp2/log2 32, fsqrt 33, rsq 63; the next EXEC lane starts in the cycle the previous one finishes, plus one cycle to take the group and the beat after the last lane.
+TB `sim/tb/ad_su_xu_tb.v` (vectors `tools/gen_xu_vectors.py` → `sim/vec/xu_funcs.hex`: gsi1fp.py's `xu_vec(1)`, 3000 vectors, plus 1448 targeted ones): `PASS ad_su_xu.funcs` (all 4448 bit for bit; worst error over bound against `$sqrt/$pow/$ln/$sin/$cos`: rcp and fsqrt 1.0 of 0.5 ulp, rsq 0.52 ulp, exp2 0.50 ulp, log2 0.48 of 2^-22 + 1 ulp, sin 0.18 and cos 0.17 of 2^-22 for |x| ≤ 16), `PASS ad_su_xu.beats` (NPHYS 8 and 4, random EXEC, X outside EXEC, idle cycles and other units' groups, random l_ready), `PASS ad_su_xu`; also passed on generator seeds 2 and 3.  Formal: `formal/ad_su_xu` (protocol with the engine stubbed), `formal/ad_xu_isqrt` (r² ≤ n < (r+1)², RW 6), `formal/ad_xu_divider` (q·d + r = r0·2^steps, r < d; bmc DW 6, prove DW 4).  Mutations `MUT_XU_ROUND` (normround drops the rounding) and `MUT_XU_ISQRT` (wrong trial) fail the TB; `MUT_XU_ISQRT` fails formal/ad_xu_isqrt.
+- ASSUMPTION: UOP_W defaults to 108 (AD_UOP_W), not the 104 of §2.
+- ASSUMPTION: x_ready is 1 only in IDLE: the next group is taken after the previous beat is accepted (no overlap of a beat waiting for l_ready with the next group's computation).
+- ASSUMPTION: one beat per group even without EXEC lanes (l_lanes 0); l_lanes = the group's EXEC lanes, l_wr = the uop's WRD bit, l_rd = its RD field, l_cls = its CLS field as decoded (class x for xu uops); l_data of the lanes outside EXEC is 0.
+- ASSUMPTION: op 7 (not decoded) gives +0 in every EXEC lane.
+- ASSUMPTION: the operand is x_a only (rs1 after the float modifiers of ad_su_opd); x_b and x_c are ignored.

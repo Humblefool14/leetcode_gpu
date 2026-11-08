@@ -1,0 +1,23 @@
+[tasks]
+bmc
+prove
+
+[options]
+bmc: mode bmc
+bmc: depth 20
+prove: mode prove
+
+[engines]
+bmc: abc bmc3
+prove: abc pdr
+
+[script]
+read -formal ad_su_fifo.v ad_su_rr_pick.v ad_su_wb.v
+read -formal fv_ad_su_wb.sv
+prep -top fv_ad_su_wb
+
+[files]
+../../rtl/su/core/ad_su_fifo.v
+../../rtl/su/core/ad_su_rr_pick.v
+../../rtl/su/ad_su_wb.v
+fv_ad_su_wb.sv
