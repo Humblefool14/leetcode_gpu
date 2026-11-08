@@ -1,0 +1,17 @@
+[tasks]
+bmc
+prove
+[options]
+bmc: mode bmc
+bmc: depth 2
+prove: mode prove
+[engines]
+bmc: abc bmc3
+prove: abc pdr
+[script]
+read -formal ad_fp_cmp.v ad_cmp_op.v fv_ad_fp_cmp.sv
+prep -top fv_ad_fp_cmp
+[files]
+../../rtl/common/ad_fp_cmp.v
+../../rtl/common/ad_cmp_op.v
+fv_ad_fp_cmp.sv

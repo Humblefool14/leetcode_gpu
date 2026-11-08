@@ -1,0 +1,16 @@
+[tasks]
+bmc
+prove
+[options]
+bmc: mode bmc
+bmc: depth 2
+prove: mode prove
+[engines]
+bmc: abc bmc3
+prove: abc pdr
+[script]
+read -formal ad_rop_div255.v fv_ad_rop_div255.sv
+prep -top fv_ad_rop_div255
+[files]
+../../rtl/common/ad_rop_div255.v
+fv_ad_rop_div255.sv

@@ -1,0 +1,29 @@
+[tasks]
+bmc
+prove
+cover
+[options]
+bmc: mode bmc
+bmc: depth 24
+prove: mode prove
+cover: mode cover
+cover: depth 20
+[engines]
+bmc: abc bmc3
+prove: abc pdr
+cover: smtbmc z3
+[script]
+read -formal -I. ad_unorm2f.v fv_dtest_stub.sv ad_ds_addr.v ad_ds_row.v ad_ds_dbgcol.v
+read -formal -I. ad_rop_ds.v
+read -formal ad_amb_client_props.sv fv_ad_rop_ds.sv
+prep -top fv_ad_rop_ds
+[files]
+../../rtl/include/ad_rop_state.vh
+../../rtl/common/ad_unorm2f.v
+fv_dtest_stub.sv
+../../rtl/rop/ds/ad_ds_addr.v
+../../rtl/rop/ds/ad_ds_row.v
+../../rtl/rop/ds/ad_ds_dbgcol.v
+../../rtl/rop/ad_rop_ds.v
+../common/ad_amb_client_props.sv
+fv_ad_rop_ds.sv

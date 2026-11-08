@@ -1,0 +1,39 @@
+[tasks]
+bmc
+prove
+live_bmc
+live_flush
+live_prove_open
+cover
+[options]
+bmc: mode bmc
+bmc: depth 32
+prove: mode prove
+live_bmc: mode bmc
+live_bmc: depth 75
+live_flush: mode bmc
+live_flush: depth 64
+live_prove_open: mode prove
+cover: mode cover
+cover: depth 14
+[engines]
+bmc: abc bmc3
+prove: abc pdr
+live_bmc: abc bmc3
+live_flush: abc bmc3
+live_prove_open: abc pdr
+cover: smtbmc z3
+[script]
+live_bmc: read -define LIVE1
+live_flush: read -define LIVE1 LIVE2
+live_prove_open: read -define LIVE
+read -formal -I. ad_wb_merge.v ad_wpix_place.v fv_wpix_stub.v ad_rop_wb.v ad_amb_client_props.sv fv_ad_rop_wb.sv
+prep -top fv_ad_rop_wb
+[files]
+../../rtl/include/ad_rop_state.vh
+../../rtl/rop/wb/ad_wb_merge.v
+../../rtl/rop/wpix/ad_wpix_place.v
+../../rtl/rop/ad_rop_wb.v
+../common/ad_amb_client_props.sv
+fv_wpix_stub.v
+fv_ad_rop_wb.sv

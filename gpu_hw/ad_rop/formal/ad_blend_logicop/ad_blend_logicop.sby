@@ -1,0 +1,16 @@
+[tasks]
+bmc
+prove
+[options]
+bmc: mode bmc
+bmc: depth 1
+prove: mode prove
+[engines]
+bmc: abc bmc3
+prove: abc pdr
+[script]
+read -formal ad_blend_logicop.v fv_ad_blend_logicop.sv
+prep -top fv_ad_blend_logicop
+[files]
+../../rtl/rop/blend/ad_blend_logicop.v
+fv_ad_blend_logicop.sv

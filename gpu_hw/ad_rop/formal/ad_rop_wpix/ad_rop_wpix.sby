@@ -1,0 +1,27 @@
+[tasks]
+bmc
+prove
+prove64
+[options]
+bmc: mode bmc
+bmc: depth 4
+prove: mode prove
+prove64: mode prove
+[engines]
+bmc: abc bmc3
+prove: abc pdr
+prove64: abc pdr
+[script]
+read -formal -I. ad_unorm2f.v ad_fmt_info.v ad_fmt_pack.v ad_wpix_place.v ad_wpix_old.v fv_fblend_bb.v ad_rop_wpix.v fv_ad_rop_wpix.sv
+prove64: chparam -set LINE_BYTES 64 -set LINE_SHIFT 6 fv_ad_rop_wpix
+prep -top fv_ad_rop_wpix
+[files]
+../../rtl/include/ad_rop_state.vh
+../../rtl/common/ad_unorm2f.v
+../../rtl/rop/ad_fmt_info.v
+../../rtl/rop/ad_fmt_pack.v
+../../rtl/rop/wpix/ad_wpix_place.v
+../../rtl/rop/wpix/ad_wpix_old.v
+../../rtl/rop/ad_rop_wpix.v
+fv_fblend_bb.v
+fv_ad_rop_wpix.sv

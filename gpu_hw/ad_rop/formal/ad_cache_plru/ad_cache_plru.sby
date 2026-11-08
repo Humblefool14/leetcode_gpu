@@ -1,0 +1,16 @@
+[tasks]
+bmc
+prove
+[options]
+bmc: mode bmc
+bmc: depth 1
+prove: mode prove
+[engines]
+bmc: abc bmc3
+prove: abc pdr
+[script]
+read -formal ad_cache_plru.v fv_ad_cache_plru.sv
+prep -top fv_ad_cache_plru
+[files]
+../../rtl/rop/cache/ad_cache_plru.v
+fv_ad_cache_plru.sv

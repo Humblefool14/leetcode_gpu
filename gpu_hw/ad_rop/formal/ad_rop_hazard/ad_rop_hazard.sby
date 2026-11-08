@@ -1,0 +1,22 @@
+[tasks]
+bmc
+prove
+cover
+[options]
+bmc: mode bmc
+bmc: depth 20
+prove: mode prove
+cover: mode cover
+cover: depth 20
+[engines]
+bmc: abc bmc3
+prove: abc pdr
+cover: smtbmc z3
+[script]
+read -formal -DAD_FV_HAZARD hazard/ad_hazard_prienc.v hazard/ad_hazard_cam.v ad_rop_hazard.v fv_ad_rop_hazard.sv
+prep -top fv_ad_rop_hazard
+[files]
+hazard/ad_hazard_prienc.v ../../rtl/rop/hazard/ad_hazard_prienc.v
+hazard/ad_hazard_cam.v ../../rtl/rop/hazard/ad_hazard_cam.v
+../../rtl/rop/ad_rop_hazard.v
+fv_ad_rop_hazard.sv

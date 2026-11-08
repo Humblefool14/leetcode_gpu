@@ -1,0 +1,21 @@
+[tasks]
+bmc
+prove
+cover
+[options]
+bmc: mode bmc
+bmc: depth 16
+prove: mode prove
+cover: mode cover
+cover: depth 16
+[engines]
+bmc: abc bmc3
+prove: abc pdr
+cover: smtbmc z3
+[script]
+read -formal fv_stubs.v ad_rop_fblend.v fv_ad_rop_fblend.sv
+prep -flatten -top fv_ad_rop_fblend
+[files]
+fv_stubs.v
+../../rtl/rop/ad_rop_fblend.v
+fv_ad_rop_fblend.sv

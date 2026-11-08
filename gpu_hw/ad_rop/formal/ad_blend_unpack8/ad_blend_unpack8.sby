@@ -1,0 +1,19 @@
+[tasks]
+bmc
+prove
+[options]
+bmc: mode bmc
+bmc: depth 1
+prove: mode prove
+[engines]
+bmc: abc bmc3
+prove: abc pdr
+[script]
+read -formal ad_rop_div255.v ad_blend_unpack8.v ad_blend_pack8.v fv_ad_blend_unpack8.sv
+prep -top fv_ad_blend_unpack8
+[files]
+../../rtl/include/ad_rop_state.vh
+../../rtl/common/ad_rop_div255.v
+../../rtl/rop/blend/ad_blend_unpack8.v
+../../rtl/rop/blend/ad_blend_pack8.v
+fv_ad_blend_unpack8.sv

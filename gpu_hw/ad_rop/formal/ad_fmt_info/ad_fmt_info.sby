@@ -1,0 +1,16 @@
+[tasks]
+bmc
+prove
+[options]
+bmc: mode bmc
+bmc: depth 1
+prove: mode prove
+[engines]
+bmc: abc bmc3
+prove: abc pdr
+[script]
+read -formal ad_fmt_info.v fv_ad_fmt_info.sv
+prep -top fv_ad_fmt_info
+[files]
+../../rtl/rop/ad_fmt_info.v
+fv_ad_fmt_info.sv
