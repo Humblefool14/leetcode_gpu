@@ -1,0 +1,43 @@
+[tasks]
+bmc
+prove
+pipe_bmc
+pipe_prove
+[options]
+bmc: mode bmc
+bmc: depth 10
+prove: mode prove
+pipe_bmc: mode bmc
+pipe_bmc: depth 6
+pipe_prove: mode prove
+pipe_prove: depth 5
+[engines]
+bmc: abc bmc3
+prove: abc pdr
+pipe_bmc: abc bmc3
+pipe_prove: smtbmc z3
+[script]
+read -formal ad_rop_div255.v ad_rop_f2u8.v ad_blend_unpack8.v ad_blend_pack8.v ad_blend_factor8.v ad_blend_op8.v ad_blend_logicop.v ad_blend_state.v ad_blend_pipe.v ad_rop_blend.v
+bmc: read -formal fv_ad_rop_blend.sv
+prove: read -formal fv_ad_rop_blend.sv
+pipe_bmc: read -formal fv_ad_blend_pipe.sv
+pipe_prove: read -formal fv_ad_blend_pipe.sv
+bmc: prep -top fv_ad_rop_blend
+prove: prep -top fv_ad_rop_blend
+pipe_bmc: prep -top fv_ad_blend_pipe
+pipe_prove: prep -top fv_ad_blend_pipe
+[files]
+../../rtl/include/ad_rop_state.vh
+../../rtl/common/ad_rop_div255.v
+../../rtl/common/ad_rop_f2u8.v
+../../rtl/rop/blend/ad_blend_unpack8.v
+../../rtl/rop/blend/ad_blend_pack8.v
+../../rtl/rop/blend/ad_blend_factor8.v
+../../rtl/rop/blend/ad_blend_op8.v
+../../rtl/rop/blend/ad_blend_logicop.v
+../../rtl/rop/blend/ad_blend_state.v
+../../rtl/rop/blend/ad_blend_pipe.v
+../../rtl/rop/ad_rop_blend.v
+fv_props.vh
+fv_ad_rop_blend.sv
+fv_ad_blend_pipe.sv

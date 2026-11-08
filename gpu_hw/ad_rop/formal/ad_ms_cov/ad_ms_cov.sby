@@ -1,0 +1,16 @@
+[tasks]
+bmc
+prove
+[options]
+bmc: mode bmc
+bmc: depth 2
+prove: mode prove
+[engines]
+bmc: abc bmc3
+prove: abc pdr
+[script]
+read -formal ad_ms_cov.v fv_ad_ms_cov.sv
+prep -top fv_ad_ms_cov
+[files]
+../../rtl/rop/ms/ad_ms_cov.v
+fv_ad_ms_cov.sv

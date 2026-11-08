@@ -1,0 +1,16 @@
+[tasks]
+bmc
+prove
+[options]
+bmc: mode bmc
+bmc: depth 2
+prove: mode prove
+[engines]
+bmc: abc bmc3
+prove: abc pdr
+[script]
+read -formal ad_fblend_srgb_lut.v fv_ad_fblend_srgb_lut.sv
+prep -flatten -top fv_ad_fblend_srgb_lut
+[files]
+../../rtl/rop/fblend/ad_fblend_srgb_lut.v
+fv_ad_fblend_srgb_lut.sv

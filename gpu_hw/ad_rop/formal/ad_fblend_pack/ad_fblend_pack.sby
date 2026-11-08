@@ -1,0 +1,23 @@
+[tasks]
+bmc
+prove
+[options]
+bmc: mode bmc
+bmc: depth 2
+prove: mode prove
+[engines]
+bmc: abc bmc3
+prove: abc pdr
+[script]
+read -formal ad_fblend_pack.v ad_fblend_unpack.v ad_fblend_srgb_lut.v ad_fblend_srgb_enc.v ad_fblend_h2f.v ad_fblend_f2h.v ad_unorm2f.v ad_f2unorm.v fv_ad_fblend_pack.sv
+prep -flatten -top fv_ad_fblend_pack
+[files]
+../../rtl/rop/fblend/ad_fblend_pack.v
+../../rtl/rop/fblend/ad_fblend_unpack.v
+../../rtl/rop/fblend/ad_fblend_srgb_lut.v
+../../rtl/rop/fblend/ad_fblend_srgb_enc.v
+../../rtl/rop/fblend/ad_fblend_h2f.v
+../../rtl/rop/fblend/ad_fblend_f2h.v
+../../rtl/common/ad_unorm2f.v
+../../rtl/common/ad_f2unorm.v
+fv_ad_fblend_pack.sv

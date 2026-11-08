@@ -1,0 +1,18 @@
+[tasks]
+bmc
+prove
+[options]
+bmc: mode bmc
+bmc: depth 2
+prove: mode prove
+[engines]
+bmc: abc bmc3
+prove: abc pdr
+[script]
+read -formal ad_cmp_op.v ad_dtest_stencil_op.v ad_dtest_stencil.v fv_ad_dtest_stencil.sv
+prep -top fv_ad_dtest_stencil
+[files]
+../../rtl/common/ad_cmp_op.v
+../../rtl/rop/dtest/ad_dtest_stencil_op.v
+../../rtl/rop/dtest/ad_dtest_stencil.v
+fv_ad_dtest_stencil.sv
