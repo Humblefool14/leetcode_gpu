@@ -1,0 +1,37 @@
+[tasks]
+bmc
+prove
+prove_n5
+prove_n8
+prove_pdr_open
+cover
+[options]
+bmc: mode bmc
+bmc: depth 12
+prove: mode prove
+prove: depth 2
+prove_n5: mode prove
+prove_n5: depth 2
+prove_n8: mode prove
+prove_n8: depth 2
+prove_pdr_open: mode prove
+cover: mode cover
+cover: depth 12
+[engines]
+bmc: smtbmc z3
+prove: smtbmc z3
+prove_n5: smtbmc z3
+prove_n8: smtbmc z3
+prove_pdr_open: abc pdr
+cover: smtbmc z3
+[script]
+read -formal -DAD_FV_VC ad_vf_vc_match.v ad_vf_vc_penc.v ad_vf_vc_victim.v ad_vf_vc.v fv_ad_vf_vc.sv
+prove_n5: chparam -set NE 5 -set SW 3 fv_ad_vf_vc
+prove_n8: chparam -set NE 8 -set SW 3 fv_ad_vf_vc
+prep -top fv_ad_vf_vc
+[files]
+../../rtl/vf/vc/ad_vf_vc_match.v
+../../rtl/vf/vc/ad_vf_vc_penc.v
+../../rtl/vf/vc/ad_vf_vc_victim.v
+../../rtl/vf/ad_vf_vc.v
+fv_ad_vf_vc.sv

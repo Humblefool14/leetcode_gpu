@@ -1,0 +1,19 @@
+[tasks]
+bmc
+prove
+[options]
+bmc: mode bmc
+bmc: depth 24
+prove: mode prove
+[engines]
+bmc: abc bmc3
+prove: abc pdr
+[script]
+read -formal -I. ad_vf_stguard.v fv_ad_vf_stguard.sv
+prep -top fv_ad_vf_stguard
+techmap t:$shiftx
+setundef -zero
+[files]
+../../rtl/vf/top/ad_vf_stguard.v
+../../rtl/include/ad_vf_state.vh
+fv_ad_vf_stguard.sv

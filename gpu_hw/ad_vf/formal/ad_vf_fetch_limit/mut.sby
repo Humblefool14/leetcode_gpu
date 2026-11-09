@@ -1,0 +1,13 @@
+# Mutation check (not a regression task): built with MUT_ATTR_LIMIT_GE the reference check must FAIL.
+# Run: yowasp-sby -f mut.sby  (expect "DONE (FAIL")
+[options]
+mode bmc
+depth 1
+[engines]
+smtbmc z3
+[script]
+read -formal -DMUT_ATTR_LIMIT_GE ad_vf_fetch_limit.v fv_ad_vf_fetch_limit.sv
+prep -top fv_ad_vf_fetch_limit
+[files]
+../../rtl/vf/fetch/ad_vf_fetch_limit.v
+fv_ad_vf_fetch_limit.sv

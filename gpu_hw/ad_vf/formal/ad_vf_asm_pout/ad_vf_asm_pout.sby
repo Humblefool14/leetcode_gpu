@@ -1,0 +1,16 @@
+[tasks]
+bmc
+prove
+[options]
+bmc: mode bmc
+bmc: depth 30
+prove: mode prove
+[engines]
+bmc: abc bmc3
+prove: abc pdr
+[script]
+read -formal ad_vf_asm_pout.v fv_ad_vf_asm_pout.sv
+prep -top fv_ad_vf_asm_pout
+[files]
+../../rtl/vf/asm/ad_vf_asm_pout.v
+fv_ad_vf_asm_pout.sv

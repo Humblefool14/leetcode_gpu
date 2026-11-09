@@ -1,0 +1,28 @@
+[tasks]
+bmc
+bmc8
+prove
+[options]
+bmc: mode bmc
+bmc: depth 15
+bmc8: mode bmc
+bmc8: depth 13
+prove: mode prove
+[engines]
+bmc: abc bmc3
+bmc8: abc bmc3
+prove: abc pdr
+[script]
+bmc: read -formal ad_vf_state.vh ad_vf_idx_walk.v ad_vf_idx_extract.v ad_vf_idx_restart.v ad_vf_index.v ad_amb_client_props.sv fv_ad_vf_index.sv
+bmc8: read -formal ad_vf_state.vh ad_vf_idx_walk.v ad_vf_idx_extract.v ad_vf_idx_restart.v ad_vf_index.v ad_amb_client_props.sv fv_ad_vf_index.sv
+prove: read -formal -DAD_FV_IDX_CW=4 -DFV_NODATA -DAD_FV_IDX ad_vf_state.vh ad_vf_idx_walk.v ad_vf_idx_extract.v ad_vf_idx_restart.v ad_vf_index.v ad_amb_client_props.sv fv_ad_vf_index.sv
+bmc8: chparam -set LB 8 -set LS 3 fv_ad_vf_index
+prep -top fv_ad_vf_index
+[files]
+../../rtl/include/ad_vf_state.vh
+../../rtl/vf/idx/ad_vf_idx_walk.v
+../../rtl/vf/idx/ad_vf_idx_extract.v
+../../rtl/vf/idx/ad_vf_idx_restart.v
+../../rtl/vf/ad_vf_index.v
+../common/ad_amb_client_props.sv
+fv_ad_vf_index.sv

@@ -1,0 +1,33 @@
+[tasks]
+bmc
+bmc32
+prove
+prove32_open
+[options]
+bmc: mode bmc
+bmc: depth 24
+bmc32: mode bmc
+bmc32: depth 20
+prove: mode prove
+prove32_open: mode prove
+[engines]
+bmc: abc bmc3
+bmc32: abc bmc3
+prove: abc pdr
+prove32_open: abc pdr
+[script]
+bmc: read -formal -DAD_FV_ASM -DAD_FV_ASM_LANES=3 ad_vf_state.vh ad_vf_asm_topo.v ad_vf_asm_order.v ad_vf_asm_carry.v ad_vf_asm_step.v ad_vf_asm_lastuse.v ad_vf_asm_pout.v ad_vf_asm.v fv_ad_vf_asm.sv
+prove: read -formal -DAD_FV_ASM -DAD_FV_ASM_LANES=3 ad_vf_state.vh ad_vf_asm_topo.v ad_vf_asm_order.v ad_vf_asm_carry.v ad_vf_asm_step.v ad_vf_asm_lastuse.v ad_vf_asm_pout.v ad_vf_asm.v fv_ad_vf_asm.sv
+bmc32: read -formal -DAD_FV_ASM ad_vf_state.vh ad_vf_asm_topo.v ad_vf_asm_order.v ad_vf_asm_carry.v ad_vf_asm_step.v ad_vf_asm_lastuse.v ad_vf_asm_pout.v ad_vf_asm.v fv_ad_vf_asm.sv
+prove32_open: read -formal -DAD_FV_ASM ad_vf_state.vh ad_vf_asm_topo.v ad_vf_asm_order.v ad_vf_asm_carry.v ad_vf_asm_step.v ad_vf_asm_lastuse.v ad_vf_asm_pout.v ad_vf_asm.v fv_ad_vf_asm.sv
+prep -top fv_ad_vf_asm
+[files]
+../../rtl/include/ad_vf_state.vh
+../../rtl/vf/asm/ad_vf_asm_topo.v
+../../rtl/vf/asm/ad_vf_asm_order.v
+../../rtl/vf/asm/ad_vf_asm_carry.v
+../../rtl/vf/asm/ad_vf_asm_step.v
+../../rtl/vf/asm/ad_vf_asm_lastuse.v
+../../rtl/vf/asm/ad_vf_asm_pout.v
+../../rtl/vf/ad_vf_asm.v
+fv_ad_vf_asm.sv

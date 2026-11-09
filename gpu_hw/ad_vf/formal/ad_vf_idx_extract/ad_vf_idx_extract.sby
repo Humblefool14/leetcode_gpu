@@ -1,0 +1,25 @@
+[tasks]
+bmc
+prove
+bmc64
+prove64
+[options]
+bmc: mode bmc
+bmc: depth 2
+bmc64: mode bmc
+bmc64: depth 2
+prove: mode prove
+prove64: mode prove
+[engines]
+bmc: abc bmc3
+bmc64: abc bmc3
+prove: abc pdr
+prove64: abc pdr
+[script]
+read -formal ad_vf_idx_extract.v fv_ad_vf_idx_extract.sv
+bmc64: chparam -set LB 64 -set LS 6 fv_ad_vf_idx_extract
+prove64: chparam -set LB 64 -set LS 6 fv_ad_vf_idx_extract
+prep -top fv_ad_vf_idx_extract
+[files]
+../../rtl/vf/idx/ad_vf_idx_extract.v
+fv_ad_vf_idx_extract.sv
