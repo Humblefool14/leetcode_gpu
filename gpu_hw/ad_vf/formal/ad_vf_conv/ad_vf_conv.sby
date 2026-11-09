@@ -1,0 +1,37 @@
+[tasks]
+bmc
+prove
+bmc_data
+prove_data
+cover
+[options]
+bmc: mode bmc
+bmc: depth 12
+prove: mode prove
+bmc_data: mode bmc
+bmc_data: depth 7
+prove_data: mode prove
+cover: mode cover
+cover: depth 16
+[engines]
+bmc: abc bmc3
+prove: abc pdr
+bmc_data: abc bmc3
+prove_data: abc pdr
+cover: smtbmc z3
+[script]
+bmc: read -formal -I. ad_vf_fmt_h2f.v ad_vf_fmt_unorm.v ad_vf_fmt_snorm.v ad_vf_fmt_desc.v ad_vf_fmt_comp.v ad_vf_conv.v fv_ad_vf_conv.sv
+prove: read -formal -I. ad_vf_fmt_h2f.v ad_vf_fmt_unorm.v ad_vf_fmt_snorm.v ad_vf_fmt_desc.v ad_vf_fmt_comp.v ad_vf_conv.v fv_ad_vf_conv.sv
+cover: read -formal -I. ad_vf_fmt_h2f.v ad_vf_fmt_unorm.v ad_vf_fmt_snorm.v ad_vf_fmt_desc.v ad_vf_fmt_comp.v ad_vf_conv.v fv_ad_vf_conv.sv
+bmc_data: read -formal -I. -DFV_DATA ad_vf_fmt_h2f.v ad_vf_fmt_unorm.v ad_vf_fmt_snorm.v ad_vf_fmt_desc.v ad_vf_fmt_comp.v ad_vf_conv.v fv_ad_vf_conv.sv
+prove_data: read -formal -I. -DFV_DATA ad_vf_fmt_h2f.v ad_vf_fmt_unorm.v ad_vf_fmt_snorm.v ad_vf_fmt_desc.v ad_vf_fmt_comp.v ad_vf_conv.v fv_ad_vf_conv.sv
+prep -top fv_ad_vf_conv
+[files]
+../../rtl/include/ad_vf_state.vh
+../../rtl/vf/fmt/ad_vf_fmt_h2f.v
+../../rtl/vf/fmt/ad_vf_fmt_unorm.v
+../../rtl/vf/fmt/ad_vf_fmt_snorm.v
+../../rtl/vf/fmt/ad_vf_fmt_desc.v
+../../rtl/vf/fmt/ad_vf_fmt_comp.v
+../../rtl/vf/ad_vf_conv.v
+fv_ad_vf_conv.sv

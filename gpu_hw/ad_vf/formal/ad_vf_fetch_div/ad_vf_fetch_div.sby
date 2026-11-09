@@ -1,0 +1,17 @@
+[tasks]
+bmc
+prove
+[options]
+bmc: mode bmc
+bmc: depth 24
+prove: mode prove
+prove: depth 2
+[engines]
+bmc: abc bmc3
+prove: smtbmc z3
+[script]
+read -formal -DAD_FV_DIV ad_vf_fetch_div.v fv_ad_vf_fetch_div.sv
+prep -top fv_ad_vf_fetch_div
+[files]
+../../rtl/vf/fetch/ad_vf_fetch_div.v
+fv_ad_vf_fetch_div.sv

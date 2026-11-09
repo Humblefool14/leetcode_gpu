@@ -1,0 +1,28 @@
+[tasks]
+bmc
+prove
+prove_n2
+prove_n10
+prove_n16
+[options]
+bmc: mode bmc
+bmc: depth 2
+prove: mode prove
+prove_n2: mode prove
+prove_n10: mode prove
+prove_n16: mode prove
+[engines]
+bmc: abc bmc3
+prove: abc pdr
+prove_n2: abc pdr
+prove_n10: abc pdr
+prove_n16: abc pdr
+[script]
+read -formal ad_vf_fmt_unorm.v fv_ad_vf_fmt_unorm.sv
+prove_n2: chparam -set N 2 fv_ad_vf_fmt_unorm
+prove_n10: chparam -set N 10 fv_ad_vf_fmt_unorm
+prove_n16: chparam -set N 16 fv_ad_vf_fmt_unorm
+prep -top fv_ad_vf_fmt_unorm
+[files]
+../../rtl/vf/fmt/ad_vf_fmt_unorm.v
+fv_ad_vf_fmt_unorm.sv

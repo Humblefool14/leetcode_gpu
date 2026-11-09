@@ -1,0 +1,29 @@
+[tasks]
+bmc
+prove
+cover
+[options]
+bmc: mode bmc
+bmc: depth 16
+prove: mode prove
+cover: mode cover
+cover: depth 14
+[engines]
+bmc: abc bmc3
+prove: abc pdr
+cover: smtbmc z3
+[script]
+read -formal -DAD_FV_FETCH -I. ad_vf_fetch.v ad_vf_fetch_regs.v ad_vf_fetch_div.v ad_vf_fetch_addr.v ad_vf_fetch_limit.v ad_vf_fetch_lbuf.v ad_vf_fetch_extract.v ad_vf_fmt_info.v ad_amb_client_props.sv fv_ad_vf_fetch.sv
+prep -top fv_ad_vf_fetch
+[files]
+../../rtl/vf/ad_vf_fetch.v
+../../rtl/vf/fetch/ad_vf_fetch_regs.v
+../../rtl/vf/fetch/ad_vf_fetch_div.v
+../../rtl/vf/fetch/ad_vf_fetch_addr.v
+../../rtl/vf/fetch/ad_vf_fetch_limit.v
+../../rtl/vf/fetch/ad_vf_fetch_lbuf.v
+../../rtl/vf/fetch/ad_vf_fetch_extract.v
+../../rtl/vf/fmt/ad_vf_fmt_info.v
+../../rtl/include/ad_vf_state.vh
+../common/ad_amb_client_props.sv
+fv_ad_vf_fetch.sv

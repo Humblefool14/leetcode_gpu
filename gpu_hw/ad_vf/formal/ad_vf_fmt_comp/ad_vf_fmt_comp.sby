@@ -1,0 +1,20 @@
+[tasks]
+bmc
+prove
+[options]
+bmc: mode bmc
+bmc: depth 2
+prove: mode prove
+[engines]
+bmc: abc bmc3
+prove: abc pdr
+[script]
+read -formal ad_vf_fmt_h2f.v ad_vf_fmt_unorm.v ad_vf_fmt_snorm.v ad_vf_fmt_comp.v fv_ad_vf_fmt_comp.sv
+prep -top fv_ad_vf_fmt_comp
+[files]
+../../rtl/vf/fmt/ad_vf_fmt_h2f.v
+../../rtl/vf/fmt/ad_vf_fmt_unorm.v
+../../rtl/vf/fmt/ad_vf_fmt_snorm.v
+../../rtl/vf/fmt/ad_vf_fmt_comp.v
+fv_ad_vf_fmt_comp.sv
+../ad_vf_fmt_desc/fmt_desc_ref.vh
