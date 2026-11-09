@@ -1,0 +1,29 @@
+[tasks]
+bmc
+prove
+
+[options]
+bmc: mode bmc
+bmc: depth 40
+prove: mode prove
+prove: depth 3
+
+[engines]
+bmc: abc bmc3
+prove: smtbmc z3
+
+[script]
+read -formal -I. ad_su_scrub.v ad_mem_tdpram.v ad_su_cbank.v
+read -formal -I. ad_amb_client_props.sv fv_ad_su_cbank.sv
+prep -top fv_ad_su_cbank
+techmap -map +/techmap.v t:$shiftx
+setundef -zero
+
+[files]
+../../rtl/include/ad_su_uop.vh
+../../rtl/include/ad_su_state.vh
+../../rtl/su/ad_su_scrub.v
+../../rtl/su/mem/ad_mem_tdpram.v
+../../rtl/su/ad_su_cbank.v
+../common/ad_amb_client_props.sv
+fv_ad_su_cbank.sv

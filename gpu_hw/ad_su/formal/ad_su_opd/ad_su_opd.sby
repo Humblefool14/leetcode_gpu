@@ -1,0 +1,26 @@
+[tasks]
+bmc
+prove
+
+[options]
+bmc: mode bmc
+bmc: depth 16
+prove: mode prove
+
+[engines]
+bmc: abc bmc3
+prove: abc pdr
+
+[script]
+read -formal -I. ad_su_opd_plan.v ad_su_fwd_sel.v ad_su_fmod.v ad_su_opd_src.v ad_su_opd.v
+read -formal -I. fv_ad_su_opd.sv
+prep -top fv_ad_su_opd
+
+[files]
+../../rtl/su/core/ad_su_opd_plan.v
+../../rtl/su/core/ad_su_fwd_sel.v
+../../rtl/su/core/ad_su_fmod.v
+../../rtl/su/core/ad_su_opd_src.v
+../../rtl/su/ad_su_opd.v
+../../rtl/include/ad_su_uop.vh
+fv_ad_su_opd.sv

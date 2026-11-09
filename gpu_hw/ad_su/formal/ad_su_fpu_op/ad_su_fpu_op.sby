@@ -1,0 +1,27 @@
+[tasks]
+bmc
+prove
+
+[options]
+bmc: mode bmc
+bmc: depth 1
+prove: mode prove
+
+[engines]
+bmc: abc bmc3
+prove: abc pdr
+
+[script]
+read -formal ad_su_ffma_p.v ad_su_rint.v ad_su_i2f.v ad_su_f2i.v
+read -formal ad_su_fpu_op.v
+read -formal fv_ad_su_fpu_op.sv
+prep -top fv_ad_su_fpu_op
+
+[files]
+../../rtl/include/ad_su_uop.vh
+../../rtl/su/fp/ad_su_ffma_p.v
+../../rtl/su/fp/ad_su_rint.v
+../../rtl/su/fp/ad_su_i2f.v
+../../rtl/su/fp/ad_su_f2i.v
+../../rtl/su/ad_su_fpu_op.v
+fv_ad_su_fpu_op.sv

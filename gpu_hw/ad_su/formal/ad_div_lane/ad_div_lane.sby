@@ -1,0 +1,24 @@
+[tasks]
+bmc
+prove
+
+[options]
+bmc: mode bmc
+bmc: depth 16
+prove: mode prove
+
+[engines]
+bmc: abc bmc3
+prove: abc pdr
+
+[script]
+read -formal ad_div_rstep.v ad_div_sign.v ad_div_lane.v
+read -formal fv_ad_div_lane.sv
+prove: chparam -set W 4 fv_ad_div_lane
+prep -top fv_ad_div_lane
+
+[files]
+../../rtl/su/div/ad_div_rstep.v
+../../rtl/su/div/ad_div_sign.v
+../../rtl/su/div/ad_div_lane.v
+fv_ad_div_lane.sv

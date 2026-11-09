@@ -1,0 +1,28 @@
+[tasks]
+bmc
+prove
+cover
+
+[options]
+bmc: mode bmc
+bmc: depth 20
+prove: mode prove
+cover: mode cover
+cover: depth 12
+
+[engines]
+bmc: abc bmc3
+prove: abc pdr
+cover: smtbmc z3
+
+[script]
+read -formal ad_div_ctl.v ad_div_lane_stub.v ad_su_div.v
+read -formal fv_ad_su_div.sv
+prep -top fv_ad_su_div
+
+[files]
+../../rtl/include/ad_su_uop.vh
+../../rtl/su/div/ad_div_ctl.v
+../../rtl/su/ad_su_div.v
+ad_div_lane_stub.v
+fv_ad_su_div.sv

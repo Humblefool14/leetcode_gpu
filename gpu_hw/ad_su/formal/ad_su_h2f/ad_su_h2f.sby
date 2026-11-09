@@ -1,0 +1,26 @@
+[tasks]
+bmc
+prove
+
+[options]
+bmc: mode bmc
+bmc: depth 1
+prove: mode prove
+
+[engines]
+bmc: abc bmc3
+prove: abc pdr
+
+[script]
+read -formal fv_ad_su_h2f.sv ad_su_h2f.v ad_su_pk_half.v ad_su_hrnd.v ad_su_hsat.v ad_su_hcmp.v ad_su_hminmax.v 
+prep -top fv_ad_su_h2f
+
+[files]
+fv_ad_su_h2f.sv
+../../rtl/su/pk/ad_su_h2f.v
+../../rtl/su/ad_su_pk_half.v
+../../rtl/su/pk/ad_su_hrnd.v
+../../rtl/su/pk/ad_su_hsat.v
+../../rtl/su/pk/ad_su_hcmp.v
+../../rtl/su/pk/ad_su_hminmax.v
+../../rtl/include/ad_su_uop.vh

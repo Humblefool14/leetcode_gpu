@@ -1,0 +1,28 @@
+[tasks]
+bmc
+prove
+equiv
+
+[options]
+bmc: mode bmc
+bmc: depth 1
+prove: mode prove
+equiv: mode bmc
+equiv: depth 1
+
+[engines]
+bmc: abc bmc3
+prove: abc pdr
+equiv: abc bmc3
+
+[script]
+read -formal ad_su_fadd.v
+equiv: read -formal ad_su_ffma_p.v
+equiv: read -formal -DFV_EQUIV fv_ad_su_fadd.sv
+~equiv: read -formal fv_ad_su_fadd.sv
+prep -top fv_ad_su_fadd
+
+[files]
+../../rtl/su/fp/ad_su_fadd.v
+../../rtl/su/fp/ad_su_ffma_p.v
+fv_ad_su_fadd.sv

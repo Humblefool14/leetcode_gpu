@@ -1,0 +1,23 @@
+[tasks]
+bmc
+prove
+
+[options]
+bmc: mode bmc
+bmc: depth 20
+prove: mode prove
+prove: depth 6
+
+[engines]
+bmc: abc bmc3
+prove: smtbmc z3
+
+[script]
+read -formal -DAD_IC_FV ad_su_icache.v
+read -formal ad_amb_client_props.sv fv_ad_su_icache.sv
+prep -top fv_ad_su_icache
+
+[files]
+../../rtl/su/ad_su_icache.v
+../common/ad_amb_client_props.sv
+fv_ad_su_icache.sv

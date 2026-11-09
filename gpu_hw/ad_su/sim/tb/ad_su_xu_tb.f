@@ -1,0 +1,12 @@
+rtl/su/div/ad_div_rstep.v
+rtl/su/xu/ad_xu_special.v
+rtl/su/xu/ad_xu_normround.v
+rtl/su/xu/ad_xu_divider.v
+rtl/su/xu/ad_xu_isqrt.v
+rtl/su/xu/ad_xu_exp_pre.v
+rtl/su/xu/ad_xu_mulstep.v
+rtl/su/xu/ad_xu_cordic.v
+rtl/su/xu/ad_xu_sincos_pre.v
+rtl/su/xu/ad_xu_engine.v
+rtl/su/xu/ad_xu_ctl.v
+rtl/su/ad_su_xu.v

@@ -1,0 +1,29 @@
+[tasks]
+bmc
+prove
+prove64
+prove48
+
+[options]
+bmc: mode bmc
+bmc: depth 2
+prove: mode prove
+prove64: mode prove
+prove48: mode prove
+
+[engines]
+bmc: abc bmc3
+prove: abc pdr
+prove64: abc pdr
+prove48: abc pdr
+
+[script]
+read -formal ad_su_dec_chk.v fv_ad_dec_chk.sv
+prove64: chparam -set NREGS 64 -set PACKED 1 -set SUBGROUP 1 -set HAS_SA 1 -set MS4 1 fv_ad_dec_chk
+prove48: chparam -set NREGS 48 -set HAS_SA 1 fv_ad_dec_chk
+prep -top fv_ad_dec_chk
+
+[files]
+../../rtl/su/dec/ad_su_dec_chk.v
+../../rtl/include/ad_su_uop.vh
+fv_ad_dec_chk.sv

@@ -1,0 +1,23 @@
+[tasks]
+bmc
+prove
+
+[options]
+bmc: mode bmc
+bmc: depth 12
+prove: mode prove
+
+[engines]
+bmc: abc bmc3
+prove: abc pdr
+
+[script]
+read -formal ad_div_rstep.v ad_xu_divider.v
+read -formal fv_ad_xu_divider.sv
+prove: chparam -set DW 4 -set QW 6 -set CW 3 fv_ad_xu_divider
+prep -top fv_ad_xu_divider
+
+[files]
+../../rtl/su/div/ad_div_rstep.v
+../../rtl/su/xu/ad_xu_divider.v
+fv_ad_xu_divider.sv

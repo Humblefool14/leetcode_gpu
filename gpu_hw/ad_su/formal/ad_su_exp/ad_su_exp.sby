@@ -1,0 +1,31 @@
+[tasks]
+bmc
+prove
+
+[options]
+bmc: mode bmc
+bmc: depth 14
+prove: mode prove
+
+[engines]
+bmc: abc bmc3
+prove: abc pdr
+
+[script]
+read -formal -I. ad_su_scrub.v ad_gfx_floor16.v ad_gfx_skid.v ad_su_exp_drain.v ad_su_exp_mesh.v ad_su_exp.v
+bmc: read -formal -I. fv_ad_su_exp.sv
+prove: read -formal -I. -DCTRL fv_ad_su_exp.sv
+prep -top fv_ad_su_exp
+memory_map
+techmap -map +/techmap.v t:$shiftx
+setundef -zero
+
+[files]
+../../rtl/include/ad_su_uop.vh
+../../rtl/su/ad_su_scrub.v
+../../rtl/su/gfx/ad_gfx_floor16.v
+../../rtl/su/gfx/ad_gfx_skid.v
+../../rtl/su/ad_su_exp_drain.v
+../../rtl/su/ad_su_exp_mesh.v
+../../rtl/su/ad_su_exp.v
+fv_ad_su_exp.sv

@@ -1,0 +1,21 @@
+[tasks]
+bmc
+prove
+
+[options]
+bmc: mode bmc
+bmc: depth 1
+prove: mode prove
+
+[engines]
+bmc: smtbmc z3
+prove: abc pdr
+
+[script]
+read -formal ad_gfx_floor16.v
+read -formal fv_ad_gfx_floor16.sv
+prep -top fv_ad_gfx_floor16
+
+[files]
+../../rtl/su/gfx/ad_gfx_floor16.v
+fv_ad_gfx_floor16.sv

@@ -1,0 +1,39 @@
+[tasks]
+bmc
+prove
+bmc64
+prove64
+prove48
+
+[options]
+bmc: mode bmc
+bmc: depth 2
+bmc64: mode bmc
+bmc64: depth 2
+prove: mode prove
+prove64: mode prove
+prove48: mode prove
+
+[engines]
+bmc: abc bmc3
+bmc64: abc bmc3
+prove: abc pdr
+prove64: abc pdr
+prove48: abc pdr
+
+[script]
+read -formal ad_su_dec_core.v ad_su_dec_tab.v ad_su_dec_tabc.v ad_su_dec_fld.v ad_su_dec_imm.v ad_su_dec_chk.v fv_ad_dec_core.sv
+bmc64: chparam -set NREGS 64 -set PACKED 1 -set SUBGROUP 1 -set HAS_SA 1 -set MS4 1 fv_ad_dec_core
+prove64: chparam -set NREGS 64 -set PACKED 1 -set SUBGROUP 1 -set HAS_SA 1 -set MS4 1 fv_ad_dec_core
+prove48: chparam -set NREGS 48 -set PACKED 1 -set SUBGROUP 0 -set HAS_SA 1 -set MS4 0 fv_ad_dec_core
+prep -top fv_ad_dec_core
+
+[files]
+../../rtl/su/dec/ad_su_dec_core.v
+../../rtl/su/ad_su_dec_tab.v
+../../rtl/su/ad_su_dec_tabc.v
+../../rtl/su/dec/ad_su_dec_fld.v
+../../rtl/su/dec/ad_su_dec_imm.v
+../../rtl/su/dec/ad_su_dec_chk.v
+../../rtl/include/ad_su_uop.vh
+fv_ad_dec_core.sv
