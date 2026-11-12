@@ -51,7 +51,7 @@ module ad_su_exp_mesh #(
     reg in_last;
     wire in_ready, sk_empty;
     wire [SW-1:0] out_d;
-    ad_gfx_skid #(.W(SW)) skid (.clk(clk), .rst_n(rst_n), .in_valid(in_valid),
+    ad_skid #(.W(SW)) skid (.clk(clk), .rst_n(rst_n), .in_valid(in_valid),
         .in_ready(in_ready), .in_data({id, in_last, flags_h, idx_h, vd}),
         .out_valid(mesh_valid), .out_ready(mesh_ready), .out_data(out_d), .empty(sk_empty));
     assign mesh_tri = out_d[PW-1:0];

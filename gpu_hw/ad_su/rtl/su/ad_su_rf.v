@@ -67,9 +67,9 @@ module ad_su_rf #(
         for (i = 0; i < NPHYS; i = i + 1) begin : lane
             wire          we = sc_on || (w_en && w_lanes[i]);
             wire [LW-1:0] wd = sc_on ? {LW{1'b0}} : w_data[LW*i +: LW];
-            ad_su_ram1r1w #(.DW(LW), .AW(AW), .DEPTH(DEPTH)) m1 (
+            ad_ram_1r1w #(.DW(LW), .AW(AW), .DEPTH(DEPTH)) m1 (
                 .clk(clk), .we(we), .wa(wa), .wd(wd), .re(r_en), .ra(ra1), .rq(r_data1[LW*i +: LW]));
-            ad_su_ram1r1w #(.DW(LW), .AW(AW), .DEPTH(DEPTH)) m2 (
+            ad_ram_1r1w #(.DW(LW), .AW(AW), .DEPTH(DEPTH)) m2 (
                 .clk(clk), .we(we), .wa(wa), .wd(wd), .re(r_en), .ra(ra2), .rq(r_data2[LW*i +: LW]));
         end
     endgenerate

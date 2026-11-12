@@ -46,9 +46,9 @@ module ad_su_tex_ret #(
     wire [RW-1:0] hq;
     reg [1:0] state;
     wire pop = (state == S_HEAD) && !empty;
-    ad_gfx_fifo #(.W(RW), .DEPTH(4)) fifo (.clk(clk), .rst_n(rst_n), .push(rq_valid),
-        .d({rq_warp, rq_grp, rq_rd, rq_sbe, rq_last, rq_sz, rq_qmask, rq_lanes}),
-        .pop(pop), .q(hq), .full(full), .empty(empty));
+    ad_fifo #(.W(RW), .DEPTH(4)) fifo (.clk(clk), .rst_n(rst_n), .push(rq_valid),
+        .din({rq_warp, rq_grp, rq_rd, rq_sbe, rq_last, rq_sz, rq_qmask, rq_lanes}),
+        .pop(pop), .dout(hq), .full(full), .empty(empty));
     assign rq_ready = !full;
 
     reg [WARP_W-1:0] r_warp;

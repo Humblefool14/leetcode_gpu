@@ -105,7 +105,7 @@ module ad_su_pipe #(
     wire          fe, ff;
     wire [$clog2(FD):0] fc;
     wire          byp  = fe && tl && en;         // this cycle's raw result leaves at once
-    ad_su_fifo #(.W(RW), .DEPTH(FD)) q (
+    ad_fifo #(.W(RW), .DEPTH(FD)) q (
         .clk(clk), .rst_n(rst_n), .push(rv && !byp), .din(rr), .pop(en && tl && !fe),
         .dout(head), .empty(fe), .full(ff), .count(fc));
     assign s_valid = tl;
