@@ -1,5 +1,7 @@
+../ad_common/rtl/common/arb/rr_pick.sv
+../ad_common/rtl/common/arb/rec_arbiter.sv
+../ad_common/rtl/common/bus/ad_amb_mux.v
 sim/common/ad_amb_mem.v
-rtl/vf/ad_amb_mux.v
 rtl/vf/ad_vf.v
 rtl/vf/ad_vf_asm.v
 rtl/vf/ad_vf_conv.v
@@ -29,5 +31,4 @@ rtl/vf/idx/ad_vf_idx_restart.v
 rtl/vf/idx/ad_vf_idx_walk.v
 rtl/vf/top/ad_vf_stguard.v
 rtl/vf/vc/ad_vf_vc_match.v
-rtl/vf/vc/ad_vf_vc_penc.v
 rtl/vf/vc/ad_vf_vc_victim.v

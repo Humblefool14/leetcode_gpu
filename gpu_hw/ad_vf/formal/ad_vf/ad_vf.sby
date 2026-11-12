@@ -10,15 +10,17 @@ bmc_line_open: depth 20
 bmc: abc bmc3
 bmc_line_open: abc bmc3
 [script]
-bmc: read -formal -DAD_FV_TOP -I. ad_amb_mux.v ad_vf_stguard.v ad_vf.v ad_vf_index.v ad_vf_asm.v ad_vf_fetch.v ad_vf_conv.v ad_vf_idx_walk.v ad_vf_idx_extract.v ad_vf_idx_restart.v ad_vf_asm_carry.v ad_vf_asm_lastuse.v ad_vf_asm_order.v ad_vf_asm_pout.v ad_vf_asm_step.v ad_vf_asm_topo.v ad_vf_fetch_addr.v ad_vf_fetch_div.v ad_vf_fetch_extract.v ad_vf_fetch_lbuf.v ad_vf_fetch_limit.v ad_vf_fetch_regs.v ad_vf_fmt_comp.v ad_vf_fmt_desc.v ad_vf_fmt_h2f.v ad_vf_fmt_info.v ad_vf_fmt_snorm.v ad_vf_fmt_unorm.v fv_ad_vf.sv
-bmc_line_open: read -formal -DAD_FV_TOP -DFV_LINE -I. ad_amb_mux.v ad_vf_stguard.v ad_vf.v ad_vf_index.v ad_vf_asm.v ad_vf_fetch.v ad_vf_conv.v ad_vf_idx_walk.v ad_vf_idx_extract.v ad_vf_idx_restart.v ad_vf_asm_carry.v ad_vf_asm_lastuse.v ad_vf_asm_order.v ad_vf_asm_pout.v ad_vf_asm_step.v ad_vf_asm_topo.v ad_vf_fetch_addr.v ad_vf_fetch_div.v ad_vf_fetch_extract.v ad_vf_fetch_lbuf.v ad_vf_fetch_limit.v ad_vf_fetch_regs.v ad_vf_fmt_comp.v ad_vf_fmt_desc.v ad_vf_fmt_h2f.v ad_vf_fmt_info.v ad_vf_fmt_snorm.v ad_vf_fmt_unorm.v fv_ad_vf.sv
+bmc: read -formal -DAD_FV_TOP -I. ad_amb_mux.v rec_arbiter.sv rr_pick.sv ad_vf_stguard.v ad_vf.v ad_vf_index.v ad_vf_asm.v ad_vf_fetch.v ad_vf_conv.v ad_vf_idx_walk.v ad_vf_idx_extract.v ad_vf_idx_restart.v ad_vf_asm_carry.v ad_vf_asm_lastuse.v ad_vf_asm_order.v ad_vf_asm_pout.v ad_vf_asm_step.v ad_vf_asm_topo.v ad_vf_fetch_addr.v ad_vf_fetch_div.v ad_vf_fetch_extract.v ad_vf_fetch_lbuf.v ad_vf_fetch_limit.v ad_vf_fetch_regs.v ad_vf_fmt_comp.v ad_vf_fmt_desc.v ad_vf_fmt_h2f.v ad_vf_fmt_info.v ad_vf_fmt_snorm.v ad_vf_fmt_unorm.v fv_ad_vf.sv
+bmc_line_open: read -formal -DAD_FV_TOP -DFV_LINE -I. ad_amb_mux.v rec_arbiter.sv rr_pick.sv ad_vf_stguard.v ad_vf.v ad_vf_index.v ad_vf_asm.v ad_vf_fetch.v ad_vf_conv.v ad_vf_idx_walk.v ad_vf_idx_extract.v ad_vf_idx_restart.v ad_vf_asm_carry.v ad_vf_asm_lastuse.v ad_vf_asm_order.v ad_vf_asm_pout.v ad_vf_asm_step.v ad_vf_asm_topo.v ad_vf_fetch_addr.v ad_vf_fetch_div.v ad_vf_fetch_extract.v ad_vf_fetch_lbuf.v ad_vf_fetch_limit.v ad_vf_fetch_regs.v ad_vf_fmt_comp.v ad_vf_fmt_desc.v ad_vf_fmt_h2f.v ad_vf_fmt_info.v ad_vf_fmt_snorm.v ad_vf_fmt_unorm.v fv_ad_vf.sv
 prep -top fv_ad_vf
 flatten
 techmap t:$shiftx
 opt_clean
 setundef -zero
 [files]
-../../rtl/vf/ad_amb_mux.v
+../../../ad_common/rtl/common/bus/ad_amb_mux.v
+../../../ad_common/rtl/common/arb/rec_arbiter.sv
+../../../ad_common/rtl/common/arb/rr_pick.sv
 ../../rtl/vf/ad_vf.v
 ../../rtl/vf/top/ad_vf_stguard.v
 ../../rtl/vf/ad_vf_index.v

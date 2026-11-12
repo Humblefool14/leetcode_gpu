@@ -43,7 +43,7 @@ module ad_vf_vc #(
     wire [NENTRIES-1:0] l_match; wire l_any;
     ad_vf_vc_match #(.NENTRIES(NENTRIES), .KEY_W(32)) u_lmatch (.valid(valid), .tags(tags), .key(lookup_index), .match(l_match));
     wire [SLOT_W-1:0] l_slot;
-    ad_vf_vc_penc #(.N(NENTRIES), .IDX_W(SLOT_W)) u_lpenc (.req(l_match), .idx(l_slot), .any(l_any));
+    rec_arbiter #(.N(NENTRIES)) u_lpenc (.req(l_match), .grant_index(l_slot), .grant_valid(l_any));
     assign hit      = lookup_valid && l_any;
     assign hit_slot = hit ? l_slot : {SLOT_W{1'b0}};
     // one-hot AND-OR read mux (at most one entry matches)
@@ -60,8 +60,8 @@ module ad_vf_vc #(
     wire [NENTRIES-1:0] c_match; wire c_hit;
     ad_vf_vc_match #(.NENTRIES(NENTRIES), .KEY_W(32)) u_cmatch (.valid(valid), .tags(tags), .key(commit_index), .match(c_match));
     wire [SLOT_W-1:0] c_hslot, c_free; wire c_any_free;
-    ad_vf_vc_penc #(.N(NENTRIES), .IDX_W(SLOT_W)) u_chpenc (.req(c_match), .idx(c_hslot), .any(c_hit));
-    ad_vf_vc_penc #(.N(NENTRIES), .IDX_W(SLOT_W)) u_fpenc  (.req(~valid), .idx(c_free), .any(c_any_free));
+    rec_arbiter #(.N(NENTRIES)) u_chpenc (.req(c_match), .grant_index(c_hslot), .grant_valid(c_hit));
+    rec_arbiter #(.N(NENTRIES)) u_fpenc  (.req(~valid), .grant_index(c_free), .grant_valid(c_any_free));
 `ifdef MUT_VC_NOUPD
     wire c_upd = 1'b0;                    // mutation: a committed index already present is allocated again
 `else
