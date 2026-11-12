@@ -12,15 +12,15 @@ bmc: abc bmc3
 prove: abc pdr
 
 [script]
-read -formal ad_su_alu_lane.v ad_su_spipe.v ad_su_fifo.v ad_su_alu.v ad_su_fpu_stub.v ad_su_pipe.v
+read -formal ad_fifo.v ad_su_alu_lane.v ad_su_spipe.v ad_su_alu.v ad_su_fpu_stub.v ad_su_pipe.v
 bmc: read -formal fv_ad_su_pipe.sv
 prove: read -formal -DREDUCE fv_ad_su_pipe.sv
 prep -top fv_ad_su_pipe
 
 [files]
+../../../ad_common/rtl/common/fifo/ad_fifo.v
 ../../rtl/su/core/ad_su_alu_lane.v
 ../../rtl/su/core/ad_su_spipe.v
-../../rtl/su/core/ad_su_fifo.v
 ../../rtl/su/ad_su_alu.v
 ../../sim/common/ad_su_fpu_stub.v
 ../../rtl/su/ad_su_pipe.v

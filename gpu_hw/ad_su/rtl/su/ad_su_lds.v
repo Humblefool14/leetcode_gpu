@@ -148,7 +148,7 @@ module ad_su_lds #(
     wire [LDS_AW-1:0] a_addr  = sc_on ? sc_a : al_w;
     wire [31:0]       a_wdata = sc_on ? 32'd0 : (st == S_ATW) ? at_nv : opb[al*32 +: 32];
 
-    ad_mem_tdpram #(.DEPTH(WORDS), .AW(LDS_AW), .DW(32)) u_ram (
+    ad_ram_tdp #(.DEPTH(WORDS), .AW(LDS_AW), .DW(32)) u_ram (
         .clk(clk), .a_en(a_en), .a_we(a_we), .a_addr(a_addr), .a_wdata(a_wdata), .a_rdata(ram_rd),
         .b_en(mesh_rd_en), .b_addr(mesh_rd_addr), .b_rdata(mesh_rd_data));
 

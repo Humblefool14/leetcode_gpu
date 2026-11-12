@@ -47,7 +47,7 @@ module fv_ad_su_pt (
 
     // ---- allocator rules and shadow (as formal/ad_gfx_pt_alloc) ----
     wire [5:0] nret;
-    ad_gfx_popc32 hp (.m(~vl_mask), .n(nret));
+    ad_popcount #(.W(32)) hp (.in(~vl_mask), .count(nret));
     reg [5:0] lc0, lc1;
     reg pend, pb;
     reg [1:0] ps, own0, own1;

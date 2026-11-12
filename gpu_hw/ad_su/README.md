@@ -52,3 +52,11 @@ and are skipped by `regress.sh`.
 - Finding: the short-result interlock is conservative, so forwarding is never used (correct, slower).
 - Assumptions to confirm: STATE indices, exp_mesh format, PK_SHARED (not built), extra top ports.
   Details in `docs/ARCHITECTURE.md`.
+
+## Common library (2026-11-11)
+
+Generic primitives (arbiters, FIFOs, delay lines, skid buffers, RAMs, popcount, ad_amb_mux) now
+come from `../ad_common/rtl/common/` (one copy, one parameterized proof each; see
+`../ad_common/README.md`). This repository must sit next to `ad_common/`. The private copies and
+their formal directories were removed; `18` files and directories
+in all (log of the migration: `docs/MIGRATION_COMMON.txt`).

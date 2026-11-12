@@ -136,7 +136,7 @@ module ad_rop_cache #(
 `ifdef AD_FV_CACHE
     wire [NE*LB-1:0] ram_fv;
 `endif
-    ad_cache_ram #(.DEPTH(NE), .AW(EW), .NBYTES(LINE_BYTES)) u_ram (.clk(clk), .addr(ram_addr),
+    ad_ram_sp_be #(.DEPTH(NE), .AW(EW), .NBYTES(LINE_BYTES)) u_ram (.clk(clk), .addr(ram_addr),
         .re(ram_re), .we(ram_we), .wdata(ram_wdata), .rdata(ram_rdata)
 `ifdef AD_FV_CACHE
         , .fv_mem(ram_fv)

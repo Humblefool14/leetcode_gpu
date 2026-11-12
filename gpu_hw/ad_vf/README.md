@@ -48,3 +48,11 @@ ends in `_open` are known not to close and are skipped by `regress.sh`.
   fault). Both are fixed, each with a regression scene (`race`, `fault`) and a mutation.
 - ad_vf_vc (vertex cache) is a verified standalone IP; the specs do not wire it into ad_vf.
 - Assumptions to confirm: STATE indices, legacy format codes, the VkFormat set, CP/SU contracts.
+
+## Common library (2026-11-11)
+
+Generic primitives (arbiters, FIFOs, delay lines, skid buffers, RAMs, popcount, ad_amb_mux) now
+come from `../ad_common/rtl/common/` (one copy, one parameterized proof each; see
+`../ad_common/README.md`). This repository must sit next to `ad_common/`. The private copies and
+their formal directories were removed; `8` files and directories
+in all (log of the migration: `docs/MIGRATION_COMMON.txt`).

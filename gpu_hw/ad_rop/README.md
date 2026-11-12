@@ -44,3 +44,11 @@ system `yosys-abc`); with a matched native OSS CAD Suite, plain `sby -f` works.
   overtaking its own write-back) and have regressions (`ad_rop_lop_tb`, `ad_rop_raw_tb`).
 - Not implemented (see ROADMAP): 8 attachments, wb streaming path, dual-source wiring upstream, logic ops
   outside the unorm8 path.  `ad_rop_cache` and `ad_rop_hazard` are verified standalone IPs, not yet wired.
+
+## Common library (2026-11-11)
+
+Generic primitives (arbiters, FIFOs, delay lines, skid buffers, RAMs, popcount, ad_amb_mux) now
+come from `../ad_common/rtl/common/` (one copy, one parameterized proof each; see
+`../ad_common/README.md`). This repository must sit next to `ad_common/`. The private copies and
+their formal directories were removed; `5` files and directories
+in all (log of the migration: `docs/MIGRATION_COMMON.txt`).

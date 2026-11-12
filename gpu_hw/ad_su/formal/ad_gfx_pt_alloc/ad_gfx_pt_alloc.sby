@@ -12,11 +12,11 @@ bmc: abc bmc3
 prove: abc pdr
 
 [script]
-read -formal ad_gfx_popc32.v ad_gfx_pt_alloc.v
+read -formal ad_popcount.v ad_gfx_pt_alloc.v
 read -formal fv_ad_gfx_pt_alloc.sv
 prep -top fv_ad_gfx_pt_alloc
 
 [files]
-../../rtl/su/gfx/ad_gfx_popc32.v
+../../../ad_common/rtl/common/math/ad_popcount.v
 ../../rtl/su/gfx/ad_gfx_pt_alloc.v
 fv_ad_gfx_pt_alloc.sv

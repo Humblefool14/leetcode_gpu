@@ -50,7 +50,7 @@ module ad_rop_hazard #(
     ad_hazard_cam #(.N(N), .TAG_W(TAG_W)) u_cam (.tags(tags), .en(live), .key(alloc_tag), .match(match));
 
     wire any_free;
-    ad_hazard_prienc #(.N(N), .IDX_W(4)) u_enc (.req(free), .any(any_free), .idx(alloc_id));
+    rec_arbiter #(.N(N)) u_enc (.req(free), .grant_valid(any_free), .grant_index(alloc_id));
 
 `ifdef MUT_HAZ_CAM
     assign alloc_ready = any_free;            // mutation: ignores RAW hazards

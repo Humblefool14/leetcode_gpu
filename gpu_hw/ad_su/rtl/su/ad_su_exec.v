@@ -115,7 +115,7 @@ module ad_su_exec #(
         assign sdat[32*l +: 32] = eg[l] ? 32'hFFFF_FFFF : 32'd0;
     end endgenerate
 
-    ad_ctl_spipe #(.N(SHORT_LAT), .W(WARP_W + GRP_W + 7 + NPHYS*32 + NPHYS)) u_sp (
+    ad_delay #(.N(SHORT_LAT), .W(WARP_W + GRP_W + 7 + NPHYS*32 + NPHYS)) u_sp (
         .clk(clk), .rst_n(rst_n), .in_valid(sv),
         .in_data({x_warp, x_grp, x_uop[AD_UOP_RD +: 7], sdat, {NPHYS{1'b1}}}),
         .out_valid(s_valid), .out_data({s_warp, s_grp, s_rd, s_data, s_lanes}));

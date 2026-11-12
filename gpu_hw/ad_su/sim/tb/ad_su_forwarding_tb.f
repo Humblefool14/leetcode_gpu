@@ -1,3 +1,7 @@
+../ad_common/rtl/common/mem/ad_ram_1r1w.v
+../ad_common/rtl/common/arb/rr_pick.sv
+../ad_common/rtl/common/arb/rec_arbiter.sv
+../ad_common/rtl/common/fifo/ad_fifo.v
 rtl/su/core/ad_su_opd_plan.v
 rtl/su/core/ad_su_fwd_sel.v
 rtl/su/core/ad_su_fmod.v
@@ -14,9 +18,6 @@ rtl/su/fp/ad_su_f2i.v
 rtl/su/fp/ad_su_fpu_mulops.v
 rtl/su/ad_su_fpu_op.v
 rtl/su/ad_su_fpu.v
-rtl/su/core/ad_su_fifo.v
-rtl/su/core/ad_su_rr_pick.v
 rtl/su/ad_su_wb.v
-rtl/su/core/ad_su_ram1r1w.v
 rtl/su/ad_su_scrub.v
 rtl/su/ad_su_rf.v

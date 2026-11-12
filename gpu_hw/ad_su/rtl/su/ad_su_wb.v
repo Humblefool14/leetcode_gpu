@@ -94,11 +94,11 @@ module ad_su_wb #(
     wire          in_take = !sv && (!f0_empty || !f1_empty);
     wire          pop0 = in_take && !f0_empty;
     wire          pop1 = in_take && f0_empty;
-    ad_su_fifo #(.W(IW), .DEPTH(FD)) fi0 (
+    ad_fifo #(.W(IW), .DEPTH(FD)) fi0 (
         .clk(clk), .rst_n(rst_n), .push(in_we[0]),
         .din({in_warp[0 +: WARP_W], in_reg[0 +: 6], in_lane[0 +: 5], in_data[0 +: LW]}),
         .pop(pop0), .dout(f0_out), .empty(f0_empty), .full(f0_full), .count(f0_cnt));
-    ad_su_fifo #(.W(IW), .DEPTH(FD)) fi1 (
+    ad_fifo #(.W(IW), .DEPTH(FD)) fi1 (
         .clk(clk), .rst_n(rst_n), .push(in_we[1]),
         .din({in_warp[WARP_W +: WARP_W], in_reg[6 +: 6], in_lane[5 +: 5], in_data[32 +: LW]}),
         .pop(pop1), .dout(f1_out), .empty(f1_empty), .full(f1_full), .count(f1_cnt));
@@ -126,7 +126,7 @@ module ad_su_wb #(
     wire [NL-1:0] gnt;
     wire [PW-1:0] gi;
     wire          lt;
-    ad_su_rr_pick #(.N(NL), .PW(PW)) rr (.req(elig), .ptr(ptr), .gnt(gnt), .idx(gi), .any(lt));
+    rr_pick #(.N(NL)) rr (.req(elig), .ptr(ptr), .grant_onehot(gnt), .grant_index(gi), .grant_valid(lt));
     assign l_ready = gnt;
     // the granted beat's fields (AND-OR over the one-hot grant)
     reg               g_wr, g_last;

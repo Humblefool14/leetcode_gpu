@@ -185,7 +185,7 @@ module ad_su_cbank #(
     wire [31:0]   a_wdata = sc_on ? 32'd0 : ld_word;
     wire [31:0]   ram_rd;
     wire [31:0]   b_unused;
-    ad_mem_tdpram #(.DEPTH(CONST_WORDS), .AW(CW), .DW(32)) u_ram (
+    ad_ram_tdp #(.DEPTH(CONST_WORDS), .AW(CW), .DW(32)) u_ram (
         .clk(clk), .a_en(a_we || a_rd), .a_we(a_we), .a_addr(a_addr), .a_wdata(a_wdata),
         .a_rdata(ram_rd), .b_en(1'b0), .b_addr({CW{1'b0}}), .b_rdata(b_unused));
 

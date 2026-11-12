@@ -1,0 +1,22 @@
+rtl/rop/ad_rop.v: 1 x ad_amb_mux -> ad_amb_mux
+rtl/rop/ad_rop_cache.v: 1 x ad_cache_ram -> ad_ram_sp_be
+rtl/rop/ad_rop_hazard.v: 1 x ad_hazard_prienc -> rec_arbiter
+formal/ad_hazard_prienc/fv_ad_hazard_prienc.sv: 1 x ad_hazard_prienc -> rec_arbiter
+formal/ad_amb_mux/fv_ad_amb_mux.sv: 1 x ad_amb_mux -> ad_amb_mux
+sim/tb/ad_amb_mux_tb.v: 1 x ad_amb_mux -> ad_amb_mux
+sim/tb/ad_rop_sys_tb.f: -> common ['rtl/common/arb/rec_arbiter.sv', 'rtl/common/arb/rr_pick.sv', 'rtl/common/bus/ad_amb_mux.v', 'rtl/common/mem/ad_ram_sp_be.v']
+sim/tb/ad_amb_mux_tb.f: -> common ['rtl/common/arb/rec_arbiter.sv', 'rtl/common/arb/rr_pick.sv', 'rtl/common/bus/ad_amb_mux.v']
+sim/tb/ad_rop_cache_tb.f: -> common ['rtl/common/mem/ad_ram_sp_be.v']
+sim/tb/ad_rop_lop_tb.f: -> common ['rtl/common/arb/rec_arbiter.sv', 'rtl/common/arb/rr_pick.sv', 'rtl/common/bus/ad_amb_mux.v', 'rtl/common/mem/ad_ram_sp_be.v']
+sim/tb/ad_rop_raw_tb.f: -> common ['rtl/common/arb/rec_arbiter.sv', 'rtl/common/arb/rr_pick.sv', 'rtl/common/bus/ad_amb_mux.v', 'rtl/common/mem/ad_ram_sp_be.v']
+sim/tb/ad_rop_hazard_tb.f: -> common ['rtl/common/arb/rec_arbiter.sv']
+formal/ad_rop_hazard/ad_rop_hazard.sby: updated
+formal/ad_hazard_prienc/ad_hazard_prienc.sby: updated
+formal/ad_rop_cache/ad_rop_cache.sby: updated
+formal/ad_rop/ad_rop.sby: updated
+formal/ad_amb_mux/ad_amb_mux.sby: updated
+removed rtl/rop/ad_amb_mux.v
+removed formal/ad_amb_mux
+removed rtl/rop/cache/ad_cache_ram.v
+removed rtl/rop/hazard/ad_hazard_prienc.v
+removed formal/ad_hazard_prienc

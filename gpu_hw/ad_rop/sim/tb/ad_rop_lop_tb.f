@@ -1,5 +1,8 @@
+../ad_common/rtl/common/mem/ad_ram_sp_be.v
+../ad_common/rtl/common/arb/rr_pick.sv
+../ad_common/rtl/common/arb/rec_arbiter.sv
+../ad_common/rtl/common/bus/ad_amb_mux.v
 rtl/rop/ad_rop.v
-rtl/rop/ad_amb_mux.v
 rtl/rop/ad_fmt_info.v
 rtl/rop/ad_fmt_pack.v
 rtl/rop/ad_rop_blend.v
@@ -21,7 +24,6 @@ rtl/rop/blend/ad_blend_pipe.v
 rtl/rop/blend/ad_blend_state.v
 rtl/rop/blend/ad_blend_unpack8.v
 rtl/rop/cache/ad_cache_plru.v
-rtl/rop/cache/ad_cache_ram.v
 rtl/rop/cache/ad_cache_tagmatch.v
 rtl/rop/ds/ad_ds_addr.v
 rtl/rop/ds/ad_ds_dbgcol.v
@@ -41,7 +43,6 @@ rtl/rop/fblend/ad_fblend_srgb_enc.v
 rtl/rop/fblend/ad_fblend_srgb_lut.v
 rtl/rop/fblend/ad_fblend_unpack.v
 rtl/rop/hazard/ad_hazard_cam.v
-rtl/rop/hazard/ad_hazard_prienc.v
 rtl/rop/ms/ad_ms_a2c.v
 rtl/rop/ms/ad_ms_cov.v
 rtl/rop/ms/ad_ms_zclamp.v

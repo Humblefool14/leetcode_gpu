@@ -1,0 +1,22 @@
+rtl/vf/ad_vf_vc.v: 3 x ad_vf_vc_penc -> rec_arbiter
+rtl/vf/ad_vf_vc.v: 3 x rec_arbiter -> rec_arbiter
+rtl/vf/ad_vf.v: 1 x ad_amb_mux -> ad_amb_mux
+formal/ad_amb_mux/fv_ad_amb_mux.sv: 1 x ad_amb_mux -> ad_amb_mux
+formal/ad_vf_vc_penc/fv_ad_vf_vc_penc.sv: 1 x ad_vf_vc_penc -> rec_arbiter
+formal/ad_vf_vc_penc/fv_ad_vf_vc_penc.sv: 1 x rec_arbiter -> rec_arbiter
+sim/tb/ad_amb_mux_tb.v: 1 x ad_amb_mux -> ad_amb_mux
+sim/tb/ad_vf_vc_tb.f: -> common ['rtl/common/arb/rec_arbiter.sv']
+sim/tb/ad_amb_mux_tb.f: -> common ['rtl/common/arb/rec_arbiter.sv', 'rtl/common/arb/rr_pick.sv', 'rtl/common/bus/ad_amb_mux.v']
+sim/tb/ad_vf_tb.f: -> common ['rtl/common/arb/rec_arbiter.sv', 'rtl/common/arb/rr_pick.sv', 'rtl/common/bus/ad_amb_mux.v']
+formal/ad_vf_vc/ad_vf_vc.sby: updated
+formal/ad_vf/ad_vf.sby: updated
+formal/ad_amb_mux/ad_amb_mux.sby: updated
+formal/ad_vf_vc_penc/ad_vf_vc_penc.sby: updated
+removed rtl/vf/ad_amb_mux.v
+removed formal/ad_amb_mux
+removed rtl/vf/vc/ad_vf_vc_penc.v
+removed formal/ad_vf_vc_penc
+removed rtl/common/arb/rr_pick.sv
+removed rtl/common/arb/rec_arbiter.sv
+removed empty rtl/common/arb
+removed empty rtl/common

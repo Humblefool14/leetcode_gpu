@@ -52,7 +52,7 @@ module ad_gfx_pt_alloc #(
 
     // lanes returned at vl_go
     wire [5:0] ret;
-    ad_gfx_popc32 pc (.m(~vl_mask), .n(ret));
+    ad_popcount #(.W(32)) pc (.in(~vl_mask), .count(ret));
 
     wire [2:0] fblk = pt_free_idx[7:5];
     genvar g;

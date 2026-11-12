@@ -1,6 +1,6 @@
 # cover_open: the cover goal (a quad reaches an accepted AMB request) is reached at step 7 with smtbmc z3,
 # but writing the witness trace for this wide design does not finish within 15 minutes, so the task
-# is not part of the regression.  Reachability is also shown by ad_rop_sys_tb in simulation.
+# is not part of the regression. Reachability is also shown by ad_rop_sys_tb in simulation.
 [tasks]
 bmc
 cover_open
@@ -13,10 +13,13 @@ cover_open: depth 14
 bmc: abc bmc3
 cover_open: smtbmc z3
 [script]
-read -formal -I. fv_bb.v ad_f2unorm.v ad_fp_cmp.v ad_rop_f2u8.v ad_unorm2f.v ad_amb_mux.v ad_fmt_info.v ad_fmt_pack.v ad_rop.v ad_rop_ds.v ad_rop_ms.v ad_rop_occ.v ad_rop_order.v ad_rop_wb.v ad_rop_wpix.v ad_ds_addr.v ad_ds_dbgcol.v ad_ds_row.v ad_ms_a2c.v ad_ms_cov.v ad_ms_zclamp.v ad_wb_merge.v ad_wpix_old.v ad_wpix_place.v  fv_ad_rop.sv ad_amb_client_props.sv
+read -formal -I. ad_amb_mux.v rec_arbiter.sv rr_pick.sv fv_bb.v ad_f2unorm.v ad_fp_cmp.v ad_rop_f2u8.v ad_unorm2f.v ad_fmt_info.v ad_fmt_pack.v ad_rop.v ad_rop_ds.v ad_rop_ms.v ad_rop_occ.v ad_rop_order.v ad_rop_wb.v ad_rop_wpix.v ad_ds_addr.v ad_ds_dbgcol.v ad_ds_row.v ad_ms_a2c.v ad_ms_cov.v ad_ms_zclamp.v ad_wb_merge.v ad_wpix_old.v ad_wpix_place.v fv_ad_rop.sv ad_amb_client_props.sv
 prep -top fv_ad_rop
 cover_open: chformal -cover -remove ad_rop_wb ad_rop_wpix ad_rop_ds ad_rop_ms ad_rop_order ad_rop_occ ad_amb_mux
 [files]
+../../../ad_common/rtl/common/bus/ad_amb_mux.v
+../../../ad_common/rtl/common/arb/rec_arbiter.sv
+../../../ad_common/rtl/common/arb/rr_pick.sv
 fv_ad_rop.sv
 fv_bb.v
 ../common/ad_amb_client_props.sv
@@ -25,7 +28,6 @@ fv_bb.v
 ../../rtl/common/ad_fp_cmp.v
 ../../rtl/common/ad_rop_f2u8.v
 ../../rtl/common/ad_unorm2f.v
-../../rtl/rop/ad_amb_mux.v
 ../../rtl/rop/ad_fmt_info.v
 ../../rtl/rop/ad_fmt_pack.v
 ../../rtl/rop/ad_rop.v

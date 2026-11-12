@@ -1,0 +1,76 @@
+rtl/su/ad_su_exec.v: 1 x ad_ctl_spipe -> ad_delay
+rtl/su/ad_su_tex_ret.v: 1 x ad_gfx_fifo -> ad_fifo
+rtl/su/ad_su_wb.v: 1 x ad_su_rr_pick -> rr_pick
+rtl/su/ad_su_wb.v: 2 x ad_su_fifo -> ad_fifo
+rtl/su/ad_su_lds.v: 1 x ad_mem_tdpram -> ad_ram_tdp
+rtl/su/ad_su_pipe.v: 1 x ad_su_fifo -> ad_fifo
+rtl/su/ad_su_exp_mesh.v: 1 x ad_gfx_skid -> ad_skid
+rtl/su/ad_su.v: 1 x ad_amb_mux -> ad_amb_mux
+rtl/su/ad_su_cbank.v: 1 x ad_mem_tdpram -> ad_ram_tdp
+rtl/su/ad_su_rf.v: 2 x ad_su_ram1r1w -> ad_ram_1r1w
+rtl/su/gfx/ad_gfx_pt_alloc.v: 1 x ad_gfx_popc32 -> ad_popcount
+formal/ad_core_ram1r1w/fv_ad_core_ram1r1w.sv: 1 x ad_su_ram1r1w -> ad_ram_1r1w
+formal/ad_mem_tdpram/fv_ad_mem_tdpram.sv: 1 x ad_mem_tdpram -> ad_ram_tdp
+formal/ad_gfx_pt_alloc/fv_ad_gfx_pt_alloc.sv: 1 x ad_gfx_popc32 -> ad_popcount
+formal/ad_core_rr_pick/fv_ad_core_rr_pick.sv: 2 x ad_su_rr_pick -> rr_pick
+formal/ad_gfx_popc32/fv_ad_gfx_popc32.sv: 1 x ad_gfx_popc32 -> ad_popcount
+formal/ad_su_pt/fv_ad_su_pt.sv: 1 x ad_gfx_popc32 -> ad_popcount
+formal/ad_core_fifo/fv_ad_core_fifo.sv: 1 x ad_su_fifo -> ad_fifo
+formal/ad_ctl_spipe/fv_ad_ctl_spipe.sv: 1 x ad_ctl_spipe -> ad_delay
+formal/ad_amb_mux/fv_ad_amb_mux.sv: 1 x ad_amb_mux -> ad_amb_mux
+formal/ad_gfx_fifo/fv_ad_gfx_fifo.sv: 1 x ad_gfx_fifo -> ad_fifo
+formal/ad_gfx_skid/fv_ad_gfx_skid.sv: 1 x ad_gfx_skid -> ad_skid
+sim/tb/ad_amb_mux_tb.v: 1 x ad_amb_mux -> ad_amb_mux
+sim/tb/ad_su_tex_tb.f: -> common ['rtl/common/fifo/ad_fifo.v']
+sim/tb/ad_su_wb_tb.f: -> common ['rtl/common/arb/rec_arbiter.sv', 'rtl/common/arb/rr_pick.sv', 'rtl/common/fifo/ad_fifo.v']
+sim/tb/ad_su_scrub_tb.f: -> common ['rtl/common/mem/ad_ram_1r1w.v']
+sim/tb/ad_amb_mux_tb.f: -> common ['rtl/common/arb/rec_arbiter.sv', 'rtl/common/arb/rr_pick.sv', 'rtl/common/bus/ad_amb_mux.v']
+sim/tb/ad_su_exp_tb.f: -> common ['rtl/common/pipe/ad_skid.v']
+sim/tb/ad_su_pipe_tb.f: -> common ['rtl/common/fifo/ad_fifo.v']
+sim/tb/ad_su_exp_mesh_tb.f: -> common ['rtl/common/pipe/ad_skid.v']
+sim/tb/ad_su_pt_tb.f: -> common ['rtl/common/math/ad_popcount.v']
+sim/tb/ad_su_rf_tb.f: -> common ['rtl/common/mem/ad_ram_1r1w.v']
+sim/tb/ad_su_lds_tb.f: -> common ['rtl/common/mem/ad_ram_tdp.v']
+sim/tb/ad_su_cbank_tb.f: -> common ['rtl/common/mem/ad_ram_tdp.v']
+sim/tb/ad_su_exec_tb.f: -> common ['rtl/common/pipe/ad_delay.v']
+sim/tb/ad_su_tb.f: -> common ['rtl/common/arb/rec_arbiter.sv', 'rtl/common/arb/rr_pick.sv', 'rtl/common/bus/ad_amb_mux.v', 'rtl/common/fifo/ad_fifo.v', 'rtl/common/math/ad_popcount.v', 'rtl/common/mem/ad_ram_1r1w.v', 'rtl/common/mem/ad_ram_tdp.v', 'rtl/common/pipe/ad_delay.v', 'rtl/common/pipe/ad_skid.v']
+sim/tb/ad_su_forwarding_tb.f: -> common ['rtl/common/arb/rec_arbiter.sv', 'rtl/common/arb/rr_pick.sv', 'rtl/common/fifo/ad_fifo.v', 'rtl/common/mem/ad_ram_1r1w.v']
+formal/ad_core_ram1r1w/ad_core_ram1r1w.sby: updated
+formal/ad_su_pipe/ad_su_pipe.sby: updated
+formal/ad_su_tex_ret/ad_su_tex_ret.sby: updated
+formal/ad_mem_tdpram/ad_mem_tdpram.sby: updated
+formal/ad_gfx_pt_alloc/ad_gfx_pt_alloc.sby: updated
+formal/ad_core_rr_pick/ad_core_rr_pick.sby: updated
+formal/ad_gfx_popc32/ad_gfx_popc32.sby: updated
+formal/ad_su_rf/ad_su_rf.sby: updated
+formal/ad_su_exec/ad_su_exec.sby: updated
+formal/ad_su_exp_mesh/ad_su_exp_mesh.sby: updated
+formal/ad_su_cbank/ad_su_cbank.sby: updated
+formal/ad_su_tex/ad_su_tex.sby: updated
+formal/ad_su_pt/ad_su_pt.sby: updated
+formal/ad_su_wb/ad_su_wb.sby: updated
+formal/ad_core_fifo/ad_core_fifo.sby: updated
+formal/ad_ctl_spipe/ad_ctl_spipe.sby: updated
+formal/ad_amb_mux/ad_amb_mux.sby: updated
+formal/ad_gfx_fifo/ad_gfx_fifo.sby: updated
+formal/ad_su_lds/ad_su_lds.sby: updated
+formal/ad_gfx_skid/ad_gfx_skid.sby: updated
+formal/ad_su_exp/ad_su_exp.sby: updated
+removed rtl/su/ad_amb_mux.v
+removed formal/ad_amb_mux
+removed rtl/su/gfx/ad_gfx_popc32.v
+removed formal/ad_gfx_popc32
+removed rtl/su/gfx/ad_gfx_fifo.v
+removed formal/ad_gfx_fifo
+removed rtl/su/gfx/ad_gfx_skid.v
+removed formal/ad_gfx_skid
+removed rtl/su/ctl/ad_ctl_spipe.v
+removed formal/ad_ctl_spipe
+removed rtl/su/mem/ad_mem_tdpram.v
+removed formal/ad_mem_tdpram
+removed rtl/su/core/ad_su_rr_pick.v
+removed formal/ad_core_rr_pick
+removed rtl/su/core/ad_su_ram1r1w.v
+removed formal/ad_core_ram1r1w
+removed rtl/su/core/ad_su_fifo.v
+removed formal/ad_core_fifo

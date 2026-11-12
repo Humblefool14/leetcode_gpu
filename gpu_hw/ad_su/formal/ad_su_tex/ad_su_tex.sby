@@ -12,14 +12,14 @@ bmc: abc bmc3
 prove: abc pdr
 
 [script]
-read -formal -I. ad_gfx_fifo.v ad_su_tex_ret.v ad_su_tex.v
+read -formal -I. ad_fifo.v ad_su_tex_ret.v ad_su_tex.v
 read -formal fv_ad_su_tex.sv
 prep -top fv_ad_su_tex
 memory_map
 
 [files]
+../../../ad_common/rtl/common/fifo/ad_fifo.v
 ../../rtl/include/ad_su_uop.vh
-../../rtl/su/gfx/ad_gfx_fifo.v
 ../../rtl/su/ad_su_tex_ret.v
 ../../rtl/su/ad_su_tex.v
 fv_ad_su_tex.sv

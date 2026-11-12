@@ -1,6 +1,6 @@
+../ad_common/rtl/common/fifo/ad_fifo.v
 rtl/su/core/ad_su_alu_lane.v
 rtl/su/core/ad_su_spipe.v
-rtl/su/core/ad_su_fifo.v
 rtl/su/ad_su_alu.v
 # the real FPU (another builder's files); sim/common/ad_su_fpu_stub.v replaces these
 # five lines with -DPIPE_FPU_STUB

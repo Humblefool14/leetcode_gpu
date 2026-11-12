@@ -12,12 +12,12 @@ bmc: abc bmc3
 prove: abc pdr
 
 [script]
-read -formal -I. ad_ctl_exec_op.v ad_ctl_spipe.v ad_su_exec.v fv_ad_su_exec.sv
+read -formal -I. ad_delay.v ad_ctl_exec_op.v ad_su_exec.v fv_ad_su_exec.sv
 prep -top fv_ad_su_exec
 
 [files]
+../../../ad_common/rtl/common/pipe/ad_delay.v
 ../../rtl/include/ad_su_uop.vh
 ../../rtl/su/ctl/ad_ctl_exec_op.v
-../../rtl/su/ctl/ad_ctl_spipe.v
 ../../rtl/su/ad_su_exec.v
 fv_ad_su_exec.sv

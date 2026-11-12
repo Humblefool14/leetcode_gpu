@@ -32,7 +32,7 @@ module fv_ad_gfx_pt_alloc (
         .pt_free(pt_free), .pt_free_idx(pt_free_idx), .wc_end(wc_end), .wc_warp(wc_warp),
         .pt_ok(pt_ok), .pt_base(pt_base), .pt_done(pt_done), .sblk(sblk), .counts(counts));
     wire [5:0] nret;
-    ad_gfx_popc32 hp (.m(~vl_mask), .n(nret));
+    ad_popcount #(.W(32)) hp (.in(~vl_mask), .count(nret));
     wire [5:0] nlive = 6'd32 - nret;
 
     reg [5:0] lc0, lc1;               // entries in use per block
